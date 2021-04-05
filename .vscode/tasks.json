@@ -4,7 +4,7 @@
         {
             "type": "shell",
             "label": "C/C++: make file",
-            "command": "rm -rf build && mkdir build && clang -g -Wall -I /usr/local/Cellar/glfw/3.3.3/include -framework OpenGL ./src/*.c /usr/local/Cellar/glfw/3.3.3/lib/libglfw.3.3.dylib -o ./build/main",
+            "command": "rm -rf build && mkdir build && clang -g -Wall -I /usr/local/include -framework OpenGL ./libs/glad/src/*.c /usr/local/lib/libglfw.3.3.dylib ./src/*.c -o ./build/main",
             "args": [],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -14,7 +14,7 @@
         {
             "type": "shell",
             "label": "C/C++: build & run",
-            "command": "rm -rf build && mkdir build && clang -g -Wall -I /usr/local/Cellar/glfw/3.3.3/include -framework OpenGL ./src/*.c /usr/local/Cellar/glfw/3.3.3/lib/libglfw.3.3.dylib -o ./build/main",
+            "command": "rm -rf build && mkdir build && clang -g -Wall -I /usr/local/include -framework OpenGL ./libs/glad/src/*.c /usr/local/lib/libglfw.3.3.dylib ./src/*.c -o ./build/main",
             "args": [],
             "options": {
                 "cwd": "${workspaceFolder}"
