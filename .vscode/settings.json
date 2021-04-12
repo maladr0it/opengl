@@ -3,6 +3,12 @@
     "glfw3.h": "c",
     "stdio.h": "c",
     "__locale": "cpp",
-    "stdlib.h": "c"
+    "stdlib.h": "c",
+    "shader.h": "c",
+    "array": "c",
+    "iterator": "c",
+    "string": "c",
+    "string_view": "c",
+    "vector": "c"
   }
 }
