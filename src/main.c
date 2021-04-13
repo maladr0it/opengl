@@ -8,11 +8,15 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 #include "shader.h"
+#include "mat4x4.h"
+#include "v3.h"
+#include "v4.h"
 
 static const int WINDOW_WIDTH = 800;
 static const int WINDOW_HEIGHT = 600;
+static float mixVal = 1.0f;
 
-void onResize(GLFWwindow *window, int width, int height)
+void handleResize(GLFWwindow *window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
@@ -22,6 +26,22 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(window, true);
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        mixVal -= 0.01f;
+        if (mixVal < 0)
+        {
+            mixVal = 0;
+        }
+    }
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        mixVal += 0.01f;
+        if (mixVal > 1)
+        {
+            mixVal = 1;
+        }
     }
 }
 
@@ -45,7 +65,7 @@ int main(void)
     }
 
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, onResize);
+    glfwSetFramebufferSizeCallback(window, handleResize);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -154,6 +174,7 @@ int main(void)
     {
         // inputs
         processInput(window);
+        shader_setFloat(shader, "mixVal", mixVal);
 
         // render
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);

@@ -9,6 +9,7 @@
     "iterator": "c",
     "string": "c",
     "string_view": "c",
-    "vector": "c"
+    "vector": "c",
+    "mat4x4.h": "c"
   }
 }
