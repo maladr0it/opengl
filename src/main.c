@@ -77,8 +77,8 @@ int main(void)
     // Create shader program
     //
     shader_t shader = shader_create(
-        "./src/shaders/textured/vert.vs",
-        "./src/shaders/textured/frag.fs");
+        "./src/shaders/vert.vs",
+        "./src/shaders/frag.fs");
 
     //
     // Create textures
@@ -164,9 +164,22 @@ int main(void)
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
     glad_glEnableVertexAttribArray(2);
 
+    //
+    // create transform matrix
+    //
+    mat4x4_t transform = mat4x4_createIdentity();
+    transform = mat4x4_mul(transform, mat4x4_createRotZ(M_PI_2 / 2));
+    transform = mat4x4_mul(transform, mat4x4_createScale(v3_create(2.0f, 0.5f, 1.0f)));
+    transform = mat4x4_mul(transform, mat4x4_createTranslate(v3_create(0.5f, 0.5f, 0.0f)));
+
+    //
+    // load shader
+    //
     shader_use(shader);
+
     shader_setInt(shader, "texture1", 0);
     shader_setInt(shader, "texture2", 1);
+    shader_setMat4x4(shader, "transform", transform);
     //
     // Update loop
     //

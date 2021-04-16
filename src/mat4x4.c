@@ -21,15 +21,15 @@ v4_t mat4x4_mulv4(mat4x4_t mat, v4_t v)
 {
     v4_t result;
 
-    result.x = mat.m[0][0] * v.x + mat.m[1][0] * v.y + mat.m[2][0] * v.z + mat.m[3][0] * v.w;
-    result.y = mat.m[0][1] * v.x + mat.m[1][1] * v.y + mat.m[2][1] * v.z + mat.m[3][1] * v.w;
-    result.z = mat.m[0][2] * v.x + mat.m[1][2] * v.y + mat.m[2][2] * v.z + mat.m[3][2] * v.w;
-    result.w = mat.m[0][3] * v.x + mat.m[1][3] * v.y + mat.m[2][3] * v.z + mat.m[3][3] * v.w;
+    result.x = mat.m[0][0] * v.x + mat.m[0][1] * v.y + mat.m[0][2] * v.z + mat.m[0][3] * v.w;
+    result.y = mat.m[1][0] * v.x + mat.m[1][1] * v.y + mat.m[1][2] * v.z + mat.m[1][3] * v.w;
+    result.z = mat.m[2][0] * v.x + mat.m[2][1] * v.y + mat.m[2][2] * v.z + mat.m[2][3] * v.w;
+    result.w = mat.m[3][0] * v.x + mat.m[3][1] * v.y + mat.m[3][2] * v.z + mat.m[3][3] * v.w;
 
     return result;
 }
 
-mat4x4_t mat4_createIdentity()
+mat4x4_t mat4x4_createIdentity()
 {
     mat4x4_t result;
 
@@ -56,6 +56,142 @@ mat4x4_t mat4_createIdentity()
     return result;
 }
 
+mat4x4_t mat4x4_createScale(v3_t s)
+{
+    mat4x4_t result;
+
+    result.m[0][0] = s.x;
+    result.m[0][1] = 0;
+    result.m[0][2] = 0;
+    result.m[0][3] = 0;
+
+    result.m[1][0] = 0;
+    result.m[1][1] = s.y;
+    result.m[1][2] = 0;
+    result.m[1][3] = 0;
+
+    result.m[2][0] = 0;
+    result.m[2][1] = 0;
+    result.m[2][2] = s.z;
+    result.m[2][3] = 0;
+
+    result.m[3][0] = 0;
+    result.m[3][1] = 0;
+    result.m[3][2] = 0;
+    result.m[3][3] = 1;
+
+    return result;
+}
+
+mat4x4_t mat4x4_createRotX(float theta)
+{
+    mat4x4_t result;
+
+    result.m[0][0] = 1;
+    result.m[0][1] = 0;
+    result.m[0][2] = 0;
+    result.m[0][3] = 0;
+
+    result.m[1][0] = 0;
+    result.m[1][1] = cosf(theta);
+    result.m[1][2] = -sinf(theta);
+    result.m[1][3] = 0;
+
+    result.m[2][0] = 0;
+    result.m[2][1] = sinf(theta);
+    result.m[2][2] = cosf(theta);
+    result.m[2][3] = 0;
+
+    result.m[3][0] = 0;
+    result.m[3][1] = 0;
+    result.m[3][2] = 0;
+    result.m[3][3] = 1;
+
+    return result;
+}
+
+mat4x4_t mat4x4_createRotY(float theta)
+{
+    mat4x4_t result;
+
+    result.m[0][0] = cosf(theta);
+    result.m[0][1] = 0;
+    result.m[0][2] = sinf(theta);
+    result.m[0][3] = 0;
+
+    result.m[1][0] = 0;
+    result.m[1][1] = 1;
+    result.m[1][2] = 0;
+    result.m[1][3] = 0;
+
+    result.m[2][0] = -sinf(theta);
+    result.m[2][1] = 0;
+    result.m[2][2] = cosf(theta);
+    result.m[2][3] = 0;
+
+    result.m[3][0] = 0;
+    result.m[3][1] = 0;
+    result.m[3][2] = 0;
+    result.m[3][3] = 1;
+
+    return result;
+}
+
+mat4x4_t mat4x4_createRotZ(float theta)
+{
+    mat4x4_t result;
+
+    result.m[0][0] = cosf(theta);
+    result.m[0][1] = -sinf(theta);
+    result.m[0][2] = 0;
+    result.m[0][3] = 0;
+
+    result.m[1][0] = sinf(theta);
+    result.m[1][1] = cosf(theta);
+    result.m[1][2] = 0;
+    result.m[1][3] = 0;
+
+    result.m[2][0] = 0;
+    result.m[2][1] = 0;
+    result.m[2][2] = 1;
+    result.m[2][3] = 0;
+
+    result.m[3][0] = 0;
+    result.m[3][1] = 0;
+    result.m[3][2] = 0;
+    result.m[3][3] = 1;
+
+    return result;
+}
+
+mat4x4_t mat4x4_createTranslate(v3_t t)
+{
+    mat4x4_t result;
+
+    result.m[0][0] = 1;
+    result.m[0][1] = 0;
+    result.m[0][2] = 0;
+    result.m[0][3] = t.x;
+
+    result.m[1][0] = 0;
+    result.m[1][1] = 1;
+    result.m[1][2] = 0;
+    result.m[1][3] = t.y;
+
+    result.m[2][0] = 0;
+    result.m[2][1] = 0;
+    result.m[2][2] = 1;
+    result.m[2][3] = t.z;
+
+    result.m[3][0] = 0;
+    result.m[3][1] = 0;
+    result.m[3][2] = 0;
+    result.m[3][3] = 1;
+
+    return result;
+}
+
+// todo: probably need to swap rows/cols for below functions
 mat4x4_t mat4x4_createProj(float aspectRatio, float fov, float zNear, float zFar)
 {
     mat4x4_t result;
@@ -82,114 +218,6 @@ mat4x4_t mat4x4_createProj(float aspectRatio, float fov, float zNear, float zFar
     result.m[3][1] = 0;
     result.m[3][2] = -zNear * q;
     result.m[3][3] = 0;
-
-    return result;
-}
-
-mat4x4_t mat4x4_createRotX(float theta)
-{
-    mat4x4_t result;
-
-    result.m[0][0] = 1;
-    result.m[0][1] = 0;
-    result.m[0][2] = 0;
-    result.m[0][3] = 0;
-
-    result.m[1][0] = 0;
-    result.m[1][1] = cosf(theta);
-    result.m[1][2] = sinf(theta);
-    result.m[1][3] = 0;
-
-    result.m[2][0] = 0;
-    result.m[2][1] = -sinf(theta);
-    result.m[2][2] = cosf(theta);
-    result.m[2][3] = 0;
-
-    result.m[3][0] = 0;
-    result.m[3][1] = 0;
-    result.m[3][2] = 0;
-    result.m[3][3] = 1;
-
-    return result;
-}
-
-mat4x4_t mat4x4_createRotY(float theta)
-{
-    mat4x4_t result;
-
-    result.m[0][0] = cosf(theta);
-    result.m[0][1] = 0;
-    result.m[0][2] = -sinf(theta);
-    result.m[0][3] = 0;
-
-    result.m[1][0] = 0;
-    result.m[1][1] = 1;
-    result.m[1][2] = 0;
-    result.m[1][3] = 0;
-
-    result.m[2][0] = sinf(theta);
-    result.m[2][1] = 0;
-    result.m[2][2] = cosf(theta);
-    result.m[2][3] = 0;
-
-    result.m[3][0] = 0;
-    result.m[3][1] = 0;
-    result.m[3][2] = 0;
-    result.m[3][3] = 1;
-
-    return result;
-}
-
-mat4x4_t mat4x4_createRotZ(float theta)
-{
-    mat4x4_t result;
-
-    result.m[0][0] = cosf(theta);
-    result.m[0][1] = sinf(theta);
-    result.m[0][2] = 0;
-    result.m[0][3] = 0;
-
-    result.m[1][0] = -sinf(theta);
-    result.m[1][1] = cosf(theta);
-    result.m[1][2] = 0;
-    result.m[1][3] = 0;
-
-    result.m[2][0] = 0;
-    result.m[2][1] = 0;
-    result.m[2][2] = 1;
-    result.m[2][3] = 0;
-
-    result.m[3][0] = 0;
-    result.m[3][1] = 0;
-    result.m[3][2] = 0;
-    result.m[3][3] = 1;
-
-    return result;
-}
-
-mat4x4_t mat4x4_createTranslate(v3_t t)
-{
-    mat4x4_t result;
-
-    result.m[0][0] = 1;
-    result.m[0][1] = 0;
-    result.m[0][2] = 0;
-    result.m[0][3] = 0;
-
-    result.m[1][0] = 0;
-    result.m[1][1] = 1;
-    result.m[1][2] = 0;
-    result.m[1][3] = 0;
-
-    result.m[2][0] = 0;
-    result.m[2][1] = 0;
-    result.m[2][2] = 1;
-    result.m[2][3] = 0;
-
-    result.m[3][0] = t.x;
-    result.m[3][1] = t.y;
-    result.m[3][2] = t.z;
-    result.m[3][3] = 1;
 
     return result;
 }
@@ -233,23 +261,22 @@ mat4x4_t mat4x4_createLookAt(mat4x4_t pointAt)
     result.m[0][0] = pointAt.m[0][0];
     result.m[0][1] = pointAt.m[1][0];
     result.m[0][2] = pointAt.m[2][0];
-    result.m[0][3] = 0.0f;
+    result.m[0][3] = 0;
 
     result.m[1][0] = pointAt.m[0][1];
     result.m[1][1] = pointAt.m[1][1];
     result.m[1][2] = pointAt.m[2][1];
-    result.m[1][3] = 0.0f;
+    result.m[1][3] = 0;
 
     result.m[2][0] = pointAt.m[0][2];
     result.m[2][1] = pointAt.m[1][2];
     result.m[2][2] = pointAt.m[2][2];
-    result.m[2][3] = 0.0f;
+    result.m[2][3] = 0;
 
     result.m[3][0] = -(pointAt.m[3][0] * pointAt.m[0][0] + pointAt.m[3][1] * pointAt.m[0][1] + pointAt.m[3][2] * pointAt.m[0][2]);
     result.m[3][1] = -(pointAt.m[3][0] * pointAt.m[1][0] + pointAt.m[3][1] * pointAt.m[1][1] + pointAt.m[3][2] * pointAt.m[1][2]);
     result.m[3][2] = -(pointAt.m[3][0] * pointAt.m[2][0] + pointAt.m[3][1] * pointAt.m[2][1] + pointAt.m[3][2] * pointAt.m[2][2]);
-
-    result.m[3][3] = 1.0f;
+    result.m[3][3] = 1;
 
     return result;
 }

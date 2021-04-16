@@ -10,6 +10,7 @@
     "string": "c",
     "string_view": "c",
     "vector": "c",
-    "mat4x4.h": "c"
+    "mat4x4.h": "c",
+    "v4.h": "c"
   }
 }
