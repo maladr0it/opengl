@@ -27,8 +27,6 @@ mat4x4_t mat4x4_createTranslate(v3_t t);
 
 mat4x4_t mat4x4_createProj(float aspectRatio, float fov, float zNear, float zFar);
 
-mat4x4_t mat4x4_createPointAt(v3_t pos, v3_t target, v3_t up);
-
-mat4x4_t mat4x4_createLookAt(mat4x4_t pointAt);
+mat4x4_t mat4x4_createLookAt(v3_t pos, v3_t target, v3_t up);
 
 #endif

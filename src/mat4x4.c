@@ -221,61 +221,32 @@ mat4x4_t mat4x4_createProj(float aspectRatio, float fov, float zNear, float zFar
     return result;
 }
 
-// TODO: probably need to swap rows/cols for this, plus convert to openGL coords
-mat4x4_t mat4x4_createPointAt(v3_t pos, v3_t target, v3_t up)
+mat4x4_t mat4x4_createLookAt(v3_t pos, v3_t target, v3_t up)
 {
-    v3_t newForward = v3_normalize(v3_sub(target, pos));
-    v3_t a = v3_mul(newForward, v3_dot(up, newForward));
-    v3_t newUp = v3_normalize(v3_sub(up, a));
-    v3_t newRight = v3_cross(newForward, newUp);
+    v3_t direction = v3_normalize(v3_sub(pos, target));
+    v3_t right = v3_normalize(v3_cross(up, direction));
+    v3_t newUp = v3_normalize(v3_cross(direction, right));
 
     mat4x4_t result;
 
-    result.m[0][0] = newRight.x;
-    result.m[0][1] = newRight.y;
-    result.m[0][2] = newRight.z;
-    result.m[0][3] = 0;
+    result.m[0][0] = right.x;
+    result.m[0][1] = right.y;
+    result.m[0][2] = right.z;
+    result.m[0][3] = right.x * -pos.x + right.y * -pos.y + right.z * -pos.z;
 
-    result.m[1][0] = -newUp.x;
-    result.m[1][1] = -newUp.y;
-    result.m[1][2] = -newUp.z;
-    result.m[1][3] = 0;
+    result.m[1][0] = newUp.x;
+    result.m[1][1] = newUp.y;
+    result.m[1][2] = newUp.z;
+    result.m[1][3] = newUp.x * -pos.x + newUp.y * -pos.y + newUp.z * -pos.z;
 
-    result.m[2][0] = newForward.x;
-    result.m[2][1] = newForward.y;
-    result.m[2][2] = newForward.z;
-    result.m[2][3] = 0;
+    result.m[2][0] = direction.x;
+    result.m[2][1] = direction.y;
+    result.m[2][2] = direction.z;
+    result.m[2][3] = direction.x * -pos.x + direction.y * -pos.y + direction.z * -pos.z;
 
-    result.m[3][0] = pos.x;
-    result.m[3][1] = pos.y;
-    result.m[3][2] = pos.z;
-    result.m[3][3] = 1;
-
-    return result;
-}
-
-mat4x4_t mat4x4_createLookAt(mat4x4_t pointAt)
-{
-    mat4x4_t result;
-
-    result.m[0][0] = pointAt.m[0][0];
-    result.m[0][1] = pointAt.m[1][0];
-    result.m[0][2] = pointAt.m[2][0];
-    result.m[0][3] = 0;
-
-    result.m[1][0] = pointAt.m[0][1];
-    result.m[1][1] = pointAt.m[1][1];
-    result.m[1][2] = pointAt.m[2][1];
-    result.m[1][3] = 0;
-
-    result.m[2][0] = pointAt.m[0][2];
-    result.m[2][1] = pointAt.m[1][2];
-    result.m[2][2] = pointAt.m[2][2];
-    result.m[2][3] = 0;
-
-    result.m[3][0] = -(pointAt.m[3][0] * pointAt.m[0][0] + pointAt.m[3][1] * pointAt.m[0][1] + pointAt.m[3][2] * pointAt.m[0][2]);
-    result.m[3][1] = -(pointAt.m[3][0] * pointAt.m[1][0] + pointAt.m[3][1] * pointAt.m[1][1] + pointAt.m[3][2] * pointAt.m[1][2]);
-    result.m[3][2] = -(pointAt.m[3][0] * pointAt.m[2][0] + pointAt.m[3][1] * pointAt.m[2][1] + pointAt.m[3][2] * pointAt.m[2][2]);
+    result.m[3][0] = 0;
+    result.m[3][1] = 0;
+    result.m[3][2] = 0;
     result.m[3][3] = 1;
 
     return result;

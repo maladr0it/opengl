@@ -14,6 +14,7 @@
 
 static const int WINDOW_WIDTH = 800;
 static const int WINDOW_HEIGHT = 600;
+static const float FOV = M_PI_2;
 static const float Z_NEAR = 0.1f;
 static const float Z_FAR = 100.0f;
 
@@ -84,6 +85,70 @@ int main(void)
         "./src/shaders/frag.fs");
 
     //
+    // Create data and buffers
+    //
+    // clang-format off
+    float verts[] = {
+        // pos                // tex coord
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,     
+    };
+    // clang-format on
+
+    unsigned int VAO, VBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+    // tex coord attribute
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+    glad_glEnableVertexAttribArray(1);
+
+    //
     // Create textures
     //
     stbi_set_flip_vertically_on_load(true);
@@ -128,51 +193,25 @@ int main(void)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
     stbi_image_free(imageData);
 
-    //
-    // Create data and buffers
-    //
-    // clang-format off
-    float verts[] = {
-        // pos                     // color                // tex coords
-        -0.50f, +0.50f, +0.00f,    1.00f, 0.00f, 0.00f,    0.00f, 1.00f,    // top-left
-        -0.50f, -0.50f, +0.00f,    0.00f, 1.00f, 0.00f,    0.00f, 0.00f,    // bottom-left
-        +0.50f, +0.50f, +0.00f,    0.00f, 0.00f, 1.00f,    1.00f, 1.00f,    // top-right
-        +0.50f, -0.50f, +0.00f,    1.00f, 1.00f, 0.00f,    1.00f, 0.00f,    // bottom-right
-    };
-
-    unsigned int indices[] = {
-        0, 1, 2,
-        2, 1, 3, 
-    };
-    // clang-format on
-
-    unsigned int VAO, VBO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
-    // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-    glad_glEnableVertexAttribArray(1);
-    // tex coord attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
-    glad_glEnableVertexAttribArray(2);
-
-    //
-    // load shader
-    //
     shader_use(shader);
     shader_setInt(shader, "texture1", 0);
     shader_setInt(shader, "texture2", 1);
+
+    glEnable(GL_DEPTH_TEST);
+
+    v3_t cubePositions[] = {
+        v3_create(0.0f, 0.0f, 0.0f),
+        v3_create(2.0f, 5.0f, -15.0f),
+        v3_create(-1.5f, -2.2f, -2.5f),
+        v3_create(-3.8f, -2.0f, -12.3f),
+        v3_create(2.4f, -0.4f, -3.5f),
+        v3_create(-1.7f, 3.0f, -7.5f),
+        v3_create(1.3f, -2.0f, -2.5f),
+        v3_create(1.5f, 2.0f, -2.5f),
+        v3_create(1.5f, 0.2f, -1.5f),
+        v3_create(-1.3f, 1.0f, -1.5f),
+    };
+
     //
     // Update loop
     //
@@ -181,24 +220,24 @@ int main(void)
         // inputs
         processInput(window);
         shader_setFloat(shader, "mixVal", mixVal);
+
         //
         // create transform matrix
         //
-
-        mat4x4_t model = mat4x4_createIdentity();
-        model = mat4x4_mul(model, mat4x4_createRotX(-M_PI_2 / 2.0f));
-        shader_setMat4x4(shader, "model", model);
+        v3_t cameraPos = v3_create(0.0f, 0.0f, 3.0f);
+        v3_t cameraFront = v3_create(0.0f, 0.0f, -1.0f);
+        v3_t cameraUp = v3_create(0.0f, 1.0f, 0.0f);
 
         mat4x4_t view = mat4x4_createIdentity();
-        view = mat4x4_mul(view, mat4x4_createTranslate(v3_create(0.0f, 0.0f, -3.0f)));
+        view = mat4x4_mul(view, mat4x4_createLookAt(cameraPos, v3_add(cameraPos, cameraFront), cameraUp));
         shader_setMat4x4(shader, "view", view);
 
-        mat4x4_t projection = mat4x4_createProj((float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, M_PI_2, Z_NEAR, Z_FAR);
+        mat4x4_t projection = mat4x4_createProj((float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, FOV, Z_NEAR, Z_FAR);
         shader_setMat4x4(shader, "projection", projection);
 
         // render
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader_use(shader);
         glActiveTexture(GL_TEXTURE0);
@@ -206,7 +245,15 @@ int main(void)
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        for (int i = 0; i < 10; ++i)
+        {
+            mat4x4_t model = mat4x4_createIdentity();
+            model = mat4x4_mul(model, mat4x4_createTranslate(cubePositions[i]));
+            model = mat4x4_mul(model, mat4x4_createRotX((float)glfwGetTime()));
+            shader_setMat4x4(shader, "model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         // update
         glfwSwapBuffers(window);
