@@ -14,6 +14,9 @@
 
 static const int WINDOW_WIDTH = 800;
 static const int WINDOW_HEIGHT = 600;
+static const float Z_NEAR = 0.1f;
+static const float Z_FAR = 100.0f;
+
 static float mixVal = 1.0f;
 
 void handleResize(GLFWwindow *window, int width, int height)
@@ -165,21 +168,11 @@ int main(void)
     glad_glEnableVertexAttribArray(2);
 
     //
-    // create transform matrix
-    //
-    mat4x4_t transform = mat4x4_createIdentity();
-    transform = mat4x4_mul(transform, mat4x4_createRotZ(M_PI_2 / 2));
-    transform = mat4x4_mul(transform, mat4x4_createScale(v3_create(2.0f, 0.5f, 1.0f)));
-    transform = mat4x4_mul(transform, mat4x4_createTranslate(v3_create(0.5f, 0.5f, 0.0f)));
-
-    //
     // load shader
     //
     shader_use(shader);
-
     shader_setInt(shader, "texture1", 0);
     shader_setInt(shader, "texture2", 1);
-    shader_setMat4x4(shader, "transform", transform);
     //
     // Update loop
     //
@@ -188,6 +181,20 @@ int main(void)
         // inputs
         processInput(window);
         shader_setFloat(shader, "mixVal", mixVal);
+        //
+        // create transform matrix
+        //
+
+        mat4x4_t model = mat4x4_createIdentity();
+        model = mat4x4_mul(model, mat4x4_createRotX(-M_PI_2 / 2.0f));
+        shader_setMat4x4(shader, "model", model);
+
+        mat4x4_t view = mat4x4_createIdentity();
+        view = mat4x4_mul(view, mat4x4_createTranslate(v3_create(0.0f, 0.0f, -3.0f)));
+        shader_setMat4x4(shader, "view", view);
+
+        mat4x4_t projection = mat4x4_createProj((float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, M_PI_2, Z_NEAR, Z_FAR);
+        shader_setMat4x4(shader, "projection", projection);
 
         // render
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);

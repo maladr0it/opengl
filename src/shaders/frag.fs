@@ -10,9 +10,11 @@ in vec2 texCoord;
 out vec4 fragColor;
 
 void main() {
-  fragColor = mix(
+  vec4 mixed = mix(
     texture(texture1, texCoord),
     texture(texture2, vec2((1.0 - texCoord.x), texCoord.y)),
     mixVal
   );
+
+  fragColor = mixed * vec4(color, 1.0);
 }

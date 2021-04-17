@@ -191,37 +191,37 @@ mat4x4_t mat4x4_createTranslate(v3_t t)
     return result;
 }
 
-// todo: probably need to swap rows/cols for below functions
 mat4x4_t mat4x4_createProj(float aspectRatio, float fov, float zNear, float zFar)
 {
+    float right = zNear * tanf(fov / 2.0f);
+    float top = right / aspectRatio;
+
     mat4x4_t result;
 
-    float f = 1 / tan(fov / 2);
-    float q = zFar / (zFar - zNear);
-
-    result.m[0][0] = f * 1 / aspectRatio;
+    result.m[0][0] = zNear / right;
     result.m[0][1] = 0;
     result.m[0][2] = 0;
     result.m[0][3] = 0;
 
     result.m[1][0] = 0;
-    result.m[1][1] = f;
+    result.m[1][1] = zNear / top;
     result.m[1][2] = 0;
     result.m[1][3] = 0;
 
     result.m[2][0] = 0;
     result.m[2][1] = 0;
-    result.m[2][2] = q;
-    result.m[2][3] = 1;
+    result.m[2][2] = -(zFar + zNear) / (zFar - zNear);
+    result.m[2][3] = (-2 * zFar * zNear) / (zFar - zNear);
 
     result.m[3][0] = 0;
     result.m[3][1] = 0;
-    result.m[3][2] = -zNear * q;
+    result.m[3][2] = -1;
     result.m[3][3] = 0;
 
     return result;
 }
 
+// TODO: probably need to swap rows/cols for this, plus convert to openGL coords
 mat4x4_t mat4x4_createPointAt(v3_t pos, v3_t target, v3_t up)
 {
     v3_t newForward = v3_normalize(v3_sub(target, pos));
