@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
+#include "utils.h"
 #include "shader.h"
 #include "mat4x4.h"
 #include "v3.h"
@@ -17,8 +18,25 @@ static const int WINDOW_HEIGHT = 600;
 static const float FOV = M_PI_2;
 static const float Z_NEAR = 0.1f;
 static const float Z_FAR = 100.0f;
+static const double MOUSE_SENSITIVITY = 0.002f;
+static const float CAMERA_SPEED = 5.0f;
 
-static float mixVal = 1.0f;
+static double lastMouseX = (float)WINDOW_WIDTH / 2.0f;
+static double lastMouseY = (float)WINDOW_HEIGHT / 2.0f;
+
+static v3_t cameraPos;
+static float cameraYaw;
+static float cameraPitch;
+static float dt;
+
+v3_t getCameraFront(float yaw, float pitch)
+{
+    v3_t result;
+    result.x = cosf(yaw) * cosf(pitch);
+    result.y = sinf(pitch);
+    result.z = sinf(yaw) * cosf(pitch);
+    return v3_normalize(result);
+}
 
 void handleResize(GLFWwindow *window, int width, int height)
 {
@@ -31,22 +49,54 @@ void processInput(GLFWwindow *window)
     {
         glfwSetWindowShouldClose(window, true);
     }
+
+    v3_t cameraFront = getCameraFront(cameraYaw, cameraPitch);
+    v3_t cameraUp = v3_create(0.0f, 1.0f, 0.0f);
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        cameraPos = v3_add(cameraPos, v3_mul(cameraFront, dt * CAMERA_SPEED));
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        cameraPos = v3_sub(cameraPos, v3_mul(cameraFront, dt * CAMERA_SPEED));
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        cameraPos = v3_sub(cameraPos, v3_mul(v3_normalize(v3_cross(cameraFront, cameraUp)), dt * CAMERA_SPEED));
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        cameraPos = v3_add(cameraPos, v3_mul(v3_normalize(v3_cross(cameraFront, cameraUp)), dt * CAMERA_SPEED));
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+    {
+        cameraYaw += 0.1;
+    }
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    {
+        cameraYaw -= 0.1;
+    }
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
     {
-        mixVal -= 0.01f;
-        if (mixVal < 0)
-        {
-            mixVal = 0;
-        }
     }
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
     {
-        mixVal += 0.01f;
-        if (mixVal > 1)
-        {
-            mixVal = 1;
-        }
+        cameraPitch += 0.1;
     }
+}
+
+void handleMouseMove(GLFWwindow *window, double xPos, double yPos)
+{
+    double mouseSensitivity = 0.002f;
+
+    double dx = (xPos - lastMouseX) * mouseSensitivity;
+    double dy = -(yPos - lastMouseY) * mouseSensitivity; // negative as down is +ve for mouse coords
+    lastMouseX = xPos;
+    lastMouseY = yPos;
+
+    cameraYaw += dx;
+    cameraPitch = clampf(cameraPitch + dy, -M_PI_2 + 0.001f, M_PI_2 - 0.001f);
 }
 
 int main(void)
@@ -69,7 +119,9 @@ int main(void)
     }
 
     glfwMakeContextCurrent(window);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetFramebufferSizeCallback(window, handleResize);
+    glfwSetCursorPosCallback(window, handleMouseMove);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -212,20 +264,28 @@ int main(void)
         v3_create(-1.3f, 1.0f, -1.5f),
     };
 
+    // intialize globals
+    cameraPos = v3_create(0.0f, 0.0f, 3.0f);
+    cameraYaw = -M_PI_2;
+    cameraPitch = 0;
+
+    float lastFrame = 0.0f;
     //
     // Update loop
     //
     while (!glfwWindowShouldClose(window))
     {
+        float currentFrame = (float)glfwGetTime();
+        dt = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         // inputs
         processInput(window);
-        shader_setFloat(shader, "mixVal", mixVal);
 
         //
         // create transform matrix
         //
-        v3_t cameraPos = v3_create(0.0f, 0.0f, 3.0f);
-        v3_t cameraFront = v3_create(0.0f, 0.0f, -1.0f);
+        v3_t cameraFront = getCameraFront(cameraYaw, cameraPitch);
         v3_t cameraUp = v3_create(0.0f, 1.0f, 0.0f);
 
         mat4x4_t view = mat4x4_createIdentity();

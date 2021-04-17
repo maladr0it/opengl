@@ -25,3 +25,16 @@ char *utils_getFileContent(char *path)
   content[len] = '\0';
   return content;
 }
+
+float clampf(float val, float lower, float upper)
+{
+  if (val < lower)
+  {
+    return lower;
+  }
+  if (val > upper)
+  {
+    return upper;
+  }
+  return val;
+}
