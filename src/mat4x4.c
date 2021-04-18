@@ -221,11 +221,11 @@ mat4x4_t mat4x4_createProj(float aspectRatio, float fov, float zNear, float zFar
     return result;
 }
 
-mat4x4_t mat4x4_createLookAt(v3_t pos, v3_t target, v3_t up)
+mat4x4_t mat4x4_createLookAt(v3_t pos, v3_t target, v3_t worldUp)
 {
     v3_t direction = v3_normalize(v3_sub(pos, target));
-    v3_t right = v3_normalize(v3_cross(up, direction));
-    v3_t newUp = v3_normalize(v3_cross(direction, right));
+    v3_t right = v3_normalize(v3_cross(worldUp, direction));
+    v3_t up = v3_normalize(v3_cross(direction, right));
 
     mat4x4_t result;
 
@@ -234,10 +234,10 @@ mat4x4_t mat4x4_createLookAt(v3_t pos, v3_t target, v3_t up)
     result.m[0][2] = right.z;
     result.m[0][3] = right.x * -pos.x + right.y * -pos.y + right.z * -pos.z;
 
-    result.m[1][0] = newUp.x;
-    result.m[1][1] = newUp.y;
-    result.m[1][2] = newUp.z;
-    result.m[1][3] = newUp.x * -pos.x + newUp.y * -pos.y + newUp.z * -pos.z;
+    result.m[1][0] = up.x;
+    result.m[1][1] = up.y;
+    result.m[1][2] = up.z;
+    result.m[1][3] = up.x * -pos.x + up.y * -pos.y + up.z * -pos.z;
 
     result.m[2][0] = direction.x;
     result.m[2][1] = direction.y;

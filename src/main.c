@@ -8,10 +8,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 #include "utils.h"
-#include "shader.h"
 #include "mat4x4.h"
 #include "v3.h"
 #include "v4.h"
+#include "camera.h"
+#include "shader.h"
 
 static const int WINDOW_WIDTH = 800;
 static const int WINDOW_HEIGHT = 600;
@@ -19,24 +20,13 @@ static const float FOV = M_PI_2;
 static const float Z_NEAR = 0.1f;
 static const float Z_FAR = 100.0f;
 static const double MOUSE_SENSITIVITY = 0.002f;
-static const float CAMERA_SPEED = 5.0f;
+static const float CAMERA_SPEED = 10.0f;
 
-static double lastMouseX = (float)WINDOW_WIDTH / 2.0f;
-static double lastMouseY = (float)WINDOW_HEIGHT / 2.0f;
+static double lastMouseX = (double)WINDOW_WIDTH / 2.0;
+static double lastMouseY = (double)WINDOW_HEIGHT / 2.0;
 
-static v3_t cameraPos;
-static float cameraYaw;
-static float cameraPitch;
+static camera_t camera;
 static float dt;
-
-v3_t getCameraFront(float yaw, float pitch)
-{
-    v3_t result;
-    result.x = cosf(yaw) * cosf(pitch);
-    result.y = sinf(pitch);
-    result.z = sinf(yaw) * cosf(pitch);
-    return v3_normalize(result);
-}
 
 void handleResize(GLFWwindow *window, int width, int height)
 {
@@ -50,53 +40,34 @@ void processInput(GLFWwindow *window)
         glfwSetWindowShouldClose(window, true);
     }
 
-    v3_t cameraFront = getCameraFront(cameraYaw, cameraPitch);
-    v3_t cameraUp = v3_create(0.0f, 1.0f, 0.0f);
+    unsigned char moveDir = 0x00;
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        cameraPos = v3_add(cameraPos, v3_mul(cameraFront, dt * CAMERA_SPEED));
+        moveDir |= CAMERA_FORWARD;
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
-        cameraPos = v3_sub(cameraPos, v3_mul(cameraFront, dt * CAMERA_SPEED));
+        moveDir |= CAMERA_BACKWARD;
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
-        cameraPos = v3_sub(cameraPos, v3_mul(v3_normalize(v3_cross(cameraFront, cameraUp)), dt * CAMERA_SPEED));
+        moveDir |= CAMERA_LEFT;
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
-        cameraPos = v3_add(cameraPos, v3_mul(v3_normalize(v3_cross(cameraFront, cameraUp)), dt * CAMERA_SPEED));
+        moveDir |= CAMERA_RIGHT;
     }
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-    {
-        cameraYaw += 0.1;
-    }
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-    {
-        cameraYaw -= 0.1;
-    }
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-    {
-    }
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-    {
-        cameraPitch += 0.1;
-    }
+    camera_move(&camera, moveDir, dt);
 }
 
 void handleMouseMove(GLFWwindow *window, double xPos, double yPos)
 {
-    double mouseSensitivity = 0.002f;
-
-    double dx = (xPos - lastMouseX) * mouseSensitivity;
-    double dy = -(yPos - lastMouseY) * mouseSensitivity; // negative as down is +ve for mouse coords
+    double dx = (xPos - lastMouseX);
+    double dy = -(yPos - lastMouseY); // negative as down is +ve for mouse coords
     lastMouseX = xPos;
     lastMouseY = yPos;
-
-    cameraYaw += dx;
-    cameraPitch = clampf(cameraPitch + dy, -M_PI_2 + 0.001f, M_PI_2 - 0.001f);
+    camera_turn(&camera, dx * MOUSE_SENSITIVITY, dy * MOUSE_SENSITIVITY);
 }
 
 int main(void)
@@ -265,10 +236,7 @@ int main(void)
     };
 
     // intialize globals
-    cameraPos = v3_create(0.0f, 0.0f, 3.0f);
-    cameraYaw = -M_PI_2;
-    cameraPitch = 0;
-
+    camera = camera_create(v3_create(0.0f, 0.0f, 3.0f), -M_PI_2, 0.0f);
     float lastFrame = 0.0f;
     //
     // Update loop
@@ -285,11 +253,7 @@ int main(void)
         //
         // create transform matrix
         //
-        v3_t cameraFront = getCameraFront(cameraYaw, cameraPitch);
-        v3_t cameraUp = v3_create(0.0f, 1.0f, 0.0f);
-
-        mat4x4_t view = mat4x4_createIdentity();
-        view = mat4x4_mul(view, mat4x4_createLookAt(cameraPos, v3_add(cameraPos, cameraFront), cameraUp));
+        mat4x4_t view = camera_getViewTransform(camera);
         shader_setMat4x4(shader, "view", view);
 
         mat4x4_t projection = mat4x4_createProj((float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, FOV, Z_NEAR, Z_FAR);
