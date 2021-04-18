@@ -34,15 +34,17 @@ mat4x4_t camera_getViewTransform(camera_t camera)
 void camera_move(camera_t *camera, unsigned char dirs, float dt)
 {
   v3_t front = camera_getFront(*camera);
-  v3_t right = v3_normalize(v3_cross(front, WORLD_UP));
+  // remove y component from movement (FPS controls)
+  v3_t forward = v3_normalize(v3_create(front.x, 0.0f, front.z));
+  v3_t right = v3_normalize(v3_cross(forward, WORLD_UP));
 
   if (dirs & CAMERA_FORWARD)
   {
-    camera->pos = v3_add(camera->pos, v3_mul(front, dt * SPEED));
+    camera->pos = v3_add(camera->pos, v3_mul(forward, dt * SPEED));
   }
   if (dirs & CAMERA_BACKWARD)
   {
-    camera->pos = v3_sub(camera->pos, v3_mul(front, dt * SPEED));
+    camera->pos = v3_sub(camera->pos, v3_mul(forward, dt * SPEED));
   }
   if (dirs & CAMERA_LEFT)
   {

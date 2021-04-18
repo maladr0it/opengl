@@ -20,7 +20,6 @@ static const float FOV = M_PI_2;
 static const float Z_NEAR = 0.1f;
 static const float Z_FAR = 100.0f;
 static const double MOUSE_SENSITIVITY = 0.002f;
-static const float CAMERA_SPEED = 10.0f;
 
 static double lastMouseX = (double)WINDOW_WIDTH / 2.0;
 static double lastMouseY = (double)WINDOW_HEIGHT / 2.0;
@@ -93,7 +92,9 @@ int main(void)
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetFramebufferSizeCallback(window, handleResize);
     glfwSetCursorPosCallback(window, handleMouseMove);
-
+    //
+    // Set up GLAD
+    //
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         printf("Failed to initialize GLAD");
@@ -250,20 +251,18 @@ int main(void)
         // inputs
         processInput(window);
 
-        //
-        // create transform matrix
-        //
+        // create transforms
         mat4x4_t view = camera_getViewTransform(camera);
-        shader_setMat4x4(shader, "view", view);
-
         mat4x4_t projection = mat4x4_createProj((float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, FOV, Z_NEAR, Z_FAR);
-        shader_setMat4x4(shader, "projection", projection);
 
         // render
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader_use(shader);
+        shader_setMat4x4(shader, "view", view);
+        shader_setMat4x4(shader, "projection", projection);
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
         glActiveTexture(GL_TEXTURE1);

@@ -4,7 +4,7 @@
         {
             "type": "shell",
             "label": "C/C++: make file",
-            "command": "./build.sh",
+            "command": "./build-dev.sh",
             "args": [],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -14,7 +14,7 @@
         {
             "type": "shell",
             "label": "C/C++: build & run",
-            "command": "./build.sh",
+            "command": "./build-dev.sh",
             "args": [],
             "options": {
                 "cwd": "${workspaceFolder}"
