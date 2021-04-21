@@ -83,3 +83,9 @@ void shader_setMat4x4(shader_t program, char *name, mat4x4_t mat)
   int location = glGetUniformLocation(program.id, name);
   glUniformMatrix4fv(location, 1, GL_TRUE, (float *)(mat.m));
 }
+
+void shader_setV3(shader_t program, char *name, v3_t v)
+{
+  int location = glGetUniformLocation(program.id, name);
+  glUniform3f(location, v.x, v.y, v.z);
+}

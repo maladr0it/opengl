@@ -36,7 +36,7 @@ void camera_move(camera_t *camera, unsigned char dirs, float dt)
   v3_t front = camera_getFront(*camera);
   // remove y component from movement (FPS controls)
   v3_t forward = v3_normalize(v3_create(front.x, 0.0f, front.z));
-  v3_t right = v3_normalize(v3_cross(forward, WORLD_UP));
+  v3_t right = v3_cross(forward, WORLD_UP);
 
   if (dirs & CAMERA_FORWARD)
   {

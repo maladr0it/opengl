@@ -225,7 +225,7 @@ mat4x4_t mat4x4_createLookAt(v3_t pos, v3_t target, v3_t worldUp)
 {
     v3_t direction = v3_normalize(v3_sub(pos, target));
     v3_t right = v3_normalize(v3_cross(worldUp, direction));
-    v3_t up = v3_normalize(v3_cross(direction, right));
+    v3_t up = v3_cross(direction, right);
 
     mat4x4_t result;
 
