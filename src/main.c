@@ -228,7 +228,6 @@ int main(void)
 
         // draw cube
         shader_use(objectShader);
-        shader_setV3(objectShader, "cameraPos", playerCamera.pos);
         shader_setV3(objectShader, "lightPos", lightPos);
         shader_setV3(objectShader, "lightColor", lightColor);
         shader_setV3(objectShader, "objectColor", v3_create(1.0f, 0.5f, 0.3f));
@@ -237,7 +236,8 @@ int main(void)
         mat4x4_t objectModel = mat4x4_createIdentity();
         objectModel = mat4x4_mul(objectModel, mat4x4_createTranslate(v3_create(0.0f, 0.0f, 0.0f)));
         objectModel = mat4x4_mul(objectModel, mat4x4_createRotY(-time));
-        // objectModel = mat4x4_mul(objectModel, mat4x4_createRotZ(-time / 2.0));
+        objectModel = mat4x4_mul(objectModel, mat4x4_createScale(v3_create(8.0f, 1.0f, 1.0f)));
+
         shader_setMat4x4(objectShader, "model", objectModel);
 
         glBindVertexArray(objectVAO);
