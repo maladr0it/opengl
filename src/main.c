@@ -220,17 +220,24 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         v3_t lightColor = v3_create(1.0f, 1.0f, 1.0f);
-        v3_t lightPos = v3_create(1.2f, 1.0f, 2.0f);
+        float lightPathRadius = 10.0f;
+        float time = glfwGetTime();
+        // time = 0;
+        v3_t lightPos = v3_create(sinf(time) * lightPathRadius, 0.0f, cosf(time) * lightPathRadius);
+        lightPos = v3_create(5.0f, 1.0f, 5.0f);
 
         // draw cube
         shader_use(objectShader);
-        shader_setV3(objectShader, "lightColor", lightColor);
+        shader_setV3(objectShader, "cameraPos", playerCamera.pos);
         shader_setV3(objectShader, "lightPos", lightPos);
-        shader_setV3(objectShader, "objectColor", v3_create(1.0f, 0.5f, 0.0f));
+        shader_setV3(objectShader, "lightColor", lightColor);
+        shader_setV3(objectShader, "objectColor", v3_create(1.0f, 0.5f, 0.3f));
         shader_setMat4x4(objectShader, "view", view);
         shader_setMat4x4(objectShader, "projection", projection);
         mat4x4_t objectModel = mat4x4_createIdentity();
-        objectModel = mat4x4_mul(objectModel, mat4x4_createTranslate(v3_create(0.0f, 0.0f, -3.0f)));
+        objectModel = mat4x4_mul(objectModel, mat4x4_createTranslate(v3_create(0.0f, 0.0f, 0.0f)));
+        objectModel = mat4x4_mul(objectModel, mat4x4_createRotY(-time));
+        // objectModel = mat4x4_mul(objectModel, mat4x4_createRotZ(-time / 2.0));
         shader_setMat4x4(objectShader, "model", objectModel);
 
         glBindVertexArray(objectVAO);
