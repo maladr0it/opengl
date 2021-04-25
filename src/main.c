@@ -197,6 +197,7 @@ int main(void)
     // Create textures
     //
     unsigned int diffuseMap = texture_load("./assets/container2.png");
+    unsigned int specularMap = texture_load("./assets/container2_specular.png");
 
     // intialize globals
     playerCamera = camera_create(v3_create(0.0f, 0.0f, 3.0f), -M_PI_2, 0.0f);
@@ -225,7 +226,6 @@ int main(void)
 
         v3_t lightColor = v3_create(0.5f + sin(time * 2.0f) / 2.0f, 0.5f + sin(time * 0.7f) / 2.0f, 0.5f + sin(time * 1.3f) / 2.0);
         lightColor = v3_create(1.0, 1.0, 1.0);
-        v3_t objectColor = v3_create(1.0f, 1.0f, 1.0f); // 1.0f, 0.5f, 0.31f
 
         float lightPathRadius = 10.0f;
         v3_t lightPos = v3_create(sinf(time) * lightPathRadius, 0.0f, cosf(time) * lightPathRadius);
@@ -240,7 +240,7 @@ int main(void)
         shader_setV3(objectShader, "light.specular", v3_mul(lightColor, 1.0f));
 
         shader_setInt(objectShader, "material.diffuse", 0);
-        shader_setV3(objectShader, "material.specular", objectColor);
+        shader_setInt(objectShader, "material.specular", 1);
         shader_setFloat(objectShader, "material.shininess", 32.0f);
 
         shader_setMat4x4(objectShader, "view", view);
@@ -253,6 +253,8 @@ int main(void)
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMap);
 
         glBindVertexArray(objectVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
