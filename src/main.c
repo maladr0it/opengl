@@ -216,27 +216,37 @@ int main(void)
         mat4x4_t projection = mat4x4_createProj((float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, FOV, Z_NEAR, Z_FAR);
 
         // render
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        v3_t lightColor = v3_create(1.0f, 1.0f, 1.0f);
-        float lightPathRadius = 10.0f;
         float time = glfwGetTime();
-        // time = 0;
+
+        v3_t lightColor = v3_create(0.5f + sin(time * 2.0f) / 2.0f, 0.5f + sin(time * 0.7f) / 2.0f, 0.5f + sin(time * 1.3f) / 2.0);
+        v3_t objectColor = v3_create(1.0f, 1.0f, 1.0f); // 1.0f, 0.5f, 0.31f
+
+        float lightPathRadius = 10.0f;
         v3_t lightPos = v3_create(sinf(time) * lightPathRadius, 0.0f, cosf(time) * lightPathRadius);
         lightPos = v3_create(5.0f, 1.0f, 5.0f);
 
         // draw cube
         shader_use(objectShader);
         shader_setV3(objectShader, "lightPos", lightPos);
-        shader_setV3(objectShader, "lightColor", lightColor);
-        shader_setV3(objectShader, "objectColor", v3_create(1.0f, 0.5f, 0.3f));
+
+        shader_setV3(objectShader, "light.ambient", v3_mul(lightColor, 0.2f));
+        shader_setV3(objectShader, "light.diffuse", v3_mul(lightColor, 0.5f)); // darken diffuse light a bit
+        shader_setV3(objectShader, "light.specular", v3_mul(lightColor, 1.0f));
+
+        shader_setV3(objectShader, "material.ambient", objectColor);
+        shader_setV3(objectShader, "material.diffuse", objectColor);
+        shader_setV3(objectShader, "material.specular", objectColor);
+        shader_setFloat(objectShader, "material.shininess", 32.0f);
+
         shader_setMat4x4(objectShader, "view", view);
         shader_setMat4x4(objectShader, "projection", projection);
         mat4x4_t objectModel = mat4x4_createIdentity();
-        objectModel = mat4x4_mul(objectModel, mat4x4_createTranslate(v3_create(0.0f, 0.0f, 0.0f)));
+        objectModel = mat4x4_mul(objectModel, mat4x4_createTranslate(v3_create(0.0f, -1.0f, 0.0f)));
         objectModel = mat4x4_mul(objectModel, mat4x4_createRotY(-time));
-        objectModel = mat4x4_mul(objectModel, mat4x4_createScale(v3_create(8.0f, 1.0f, 1.0f)));
+        objectModel = mat4x4_mul(objectModel, mat4x4_createScale(v3_create(1.0f, 1.0f, 1.0f)));
 
         shader_setMat4x4(objectShader, "model", objectModel);
 
