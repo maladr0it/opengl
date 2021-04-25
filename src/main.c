@@ -198,6 +198,7 @@ int main(void)
     //
     unsigned int diffuseMap = texture_load("./assets/container2.png");
     unsigned int specularMap = texture_load("./assets/container2_specular.png");
+    unsigned int emissionMap = texture_load("./assets/matrix.jpg");
 
     // intialize globals
     playerCamera = camera_create(v3_create(0.0f, 0.0f, 3.0f), -M_PI_2, 0.0f);
@@ -233,14 +234,16 @@ int main(void)
 
         // draw cube
         shader_use(objectShader);
-        shader_setV3(objectShader, "lightPos", lightPos);
+        shader_setV3(objectShader, "viewPos", playerCamera.pos);
 
+        shader_setV3(objectShader, "light.pos", lightPos);
         shader_setV3(objectShader, "light.ambient", v3_mul(lightColor, 0.2f));
         shader_setV3(objectShader, "light.diffuse", v3_mul(lightColor, 0.5f)); // darken diffuse light a bit
         shader_setV3(objectShader, "light.specular", v3_mul(lightColor, 1.0f));
 
         shader_setInt(objectShader, "material.diffuse", 0);
         shader_setInt(objectShader, "material.specular", 1);
+        shader_setInt(objectShader, "material.emission", 2);
         shader_setFloat(objectShader, "material.shininess", 32.0f);
 
         shader_setMat4x4(objectShader, "view", view);
@@ -255,6 +258,8 @@ int main(void)
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, specularMap);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, emissionMap);
 
         glBindVertexArray(objectVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
