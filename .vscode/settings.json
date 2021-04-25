@@ -12,6 +12,7 @@
     "vector": "c",
     "mat4x4.h": "c",
     "v4.h": "c",
-    "algorithm": "c"
+    "algorithm": "c",
+    "stb_image.h": "c"
   }
 }

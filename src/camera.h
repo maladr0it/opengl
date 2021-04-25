@@ -1,3 +1,6 @@
+#ifndef CAMERA_H
+#define CAMERA_H
+
 #include "mat4x4.h"
 #include "v3.h"
 
@@ -25,3 +28,5 @@ mat4x4_t camera_getViewTransform(camera_t camera);
 void camera_move(camera_t *camera, unsigned char dirs, float dt);
 
 void camera_turn(camera_t *camera, float dYaw, float dPitch);
+
+#endif

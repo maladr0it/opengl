@@ -1,5 +1,5 @@
-#ifndef mat4x4_H
-#define mat4x4_H
+#ifndef MAT4X4_H
+#define MAT4X4_H
 
 #include "v3.h"
 #include "v4.h"
