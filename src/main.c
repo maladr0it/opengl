@@ -160,6 +160,19 @@ int main(void)
         -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
+    
+    v3_t cubePositions[] = {
+        v3_create( 0.0f,  0.0f,  0.0f),
+        v3_create( 2.0f,  5.0f, -15.0f),
+        v3_create(-1.5f, -2.2f, -2.5f),
+        v3_create(-3.8f, -2.0f, -12.3f),
+        v3_create( 2.4f, -0.4f, -3.5f),
+        v3_create(-1.7f,  3.0f, -7.5f),
+        v3_create( 1.3f, -2.0f, -2.5f),
+        v3_create( 1.5f,  2.0f, -2.5f),
+        v3_create( 1.5f,  0.2f, -1.5f),
+        v3_create(-1.3f,  1.0f, -1.5f),
+    };
     // clang-format on
 
     //
@@ -228,15 +241,16 @@ int main(void)
         v3_t lightColor = v3_create(0.5f + sin(time * 2.0f) / 2.0f, 0.5f + sin(time * 0.7f) / 2.0f, 0.5f + sin(time * 1.3f) / 2.0);
         lightColor = v3_create(1.0, 1.0, 1.0);
 
-        float lightPathRadius = 10.0f;
-        v3_t lightPos = v3_create(sinf(time) * lightPathRadius, 0.0f, cosf(time) * lightPathRadius);
-        lightPos = v3_create(5.0f, 1.0f, 5.0f);
+        // float lightPathRadius = 10.0f;
+        // v3_t lightPos = v3_create(sinf(time) * lightPathRadius, 0.0f, cosf(time) * lightPathRadius);
 
         // draw cube
+        glBindVertexArray(objectVAO);
         shader_use(objectShader);
         shader_setV3(objectShader, "viewPos", playerCamera.pos);
 
-        shader_setV3(objectShader, "light.pos", lightPos);
+        // shader_setV3(objectShader, "light.pos", lightPos);
+        shader_setV3(objectShader, "light.dir", v3_create(-0.2f, -1.0f, -0.3f));
         shader_setV3(objectShader, "light.ambient", v3_mul(lightColor, 0.2f));
         shader_setV3(objectShader, "light.diffuse", v3_mul(lightColor, 0.5f)); // darken diffuse light a bit
         shader_setV3(objectShader, "light.specular", v3_mul(lightColor, 1.0f));
@@ -248,11 +262,6 @@ int main(void)
 
         shader_setMat4x4(objectShader, "view", view);
         shader_setMat4x4(objectShader, "projection", projection);
-        mat4x4_t objectModel = mat4x4_createIdentity();
-        objectModel = mat4x4_mul(objectModel, mat4x4_createTranslate(v3_create(0.0f, 0.0f, 0.0f)));
-        objectModel = mat4x4_mul(objectModel, mat4x4_createRotY(-time));
-        objectModel = mat4x4_mul(objectModel, mat4x4_createScale(v3_create(1.0f, 1.0f, 1.0f)));
-        shader_setMat4x4(objectShader, "model", objectModel);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
@@ -261,19 +270,25 @@ int main(void)
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, emissionMap);
 
-        glBindVertexArray(objectVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (int i = 0; i < 10; ++i)
+        {
+            mat4x4_t objectModel = mat4x4_createIdentity();
+            objectModel = mat4x4_mul(objectModel, mat4x4_createTranslate(cubePositions[i]));
+            objectModel = mat4x4_mul(objectModel, mat4x4_createRotX(time));
+            shader_setMat4x4(objectShader, "model", objectModel);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         // draw light
-        shader_use(lightShader);
-        shader_setV3(lightShader, "lightColor", lightColor);
-        shader_setMat4x4(lightShader, "view", view);
-        shader_setMat4x4(lightShader, "projection", projection);
-        mat4x4_t lightModel = mat4x4_createIdentity();
-        lightModel = mat4x4_mul(lightModel, mat4x4_createTranslate(lightPos));
-        shader_setMat4x4(lightShader, "model", lightModel);
-        glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        // glBindVertexArray(lightVAO);
+        // shader_use(lightShader);
+        // shader_setV3(lightShader, "lightColor", lightColor);
+        // shader_setMat4x4(lightShader, "view", view);
+        // shader_setMat4x4(lightShader, "projection", projection);
+        // mat4x4_t lightModel = mat4x4_createIdentity();
+        // lightModel = mat4x4_mul(lightModel, mat4x4_createTranslate(lightPos));
+        // shader_setMat4x4(lightShader, "model", lightModel);
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // update
         glfwSwapBuffers(window);

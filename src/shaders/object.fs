@@ -8,7 +8,8 @@ struct Material {
 };
 
 struct Light {
-  vec3 pos;
+  // vec3 pos;
+  vec3 dir;
   vec3 ambient;
   vec3 diffuse;
   vec3 specular;
@@ -30,7 +31,8 @@ void main() {
 
   // diffuse
   vec3 normal = normalize(fragNormal);
-  vec3 lightDir = normalize(fragPos - light.pos);
+  // vec3 lightDir = normalize(fragPos - light.pos);
+  vec3 lightDir = normalize(light.dir);
   float diffuseStrength = max(dot(normal, -lightDir), 0);
   vec3 diffuse = light.diffuse * diffuseStrength * vec3(texture(material.diffuse, fragTexCoords));
 
@@ -41,9 +43,9 @@ void main() {
   vec3 specular = light.specular * specularStrength * vec3(texture(material.specular, fragTexCoords));
 
   // emission
-  vec3 emission = vec3(texture(material.emission, fragTexCoords));
+  vec3 emission = vec3(texture(material.emission, fragTexCoords)) * floor(vec3(1.0) - vec3(texture(material.specular, fragTexCoords)));
 
   // result
-  vec3 result = (ambient + diffuse + specular + emission);
+  vec3 result = (ambient + diffuse + specular);
   fragColor = vec4(result, 1.0);
 }
