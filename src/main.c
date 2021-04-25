@@ -233,7 +233,7 @@ int main(void)
         mat4x4_t projection = mat4x4_createProj((float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, FOV, Z_NEAR, Z_FAR);
 
         // render
-        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         float time = glfwGetTime();
@@ -241,19 +241,23 @@ int main(void)
         v3_t lightColor = v3_create(0.5f + sin(time * 2.0f) / 2.0f, 0.5f + sin(time * 0.7f) / 2.0f, 0.5f + sin(time * 1.3f) / 2.0);
         lightColor = v3_create(1.0, 1.0, 1.0);
 
-        // float lightPathRadius = 10.0f;
-        // v3_t lightPos = v3_create(sinf(time) * lightPathRadius, 0.0f, cosf(time) * lightPathRadius);
+        float lightPathRadius = 10.0f;
+        v3_t lightPos = v3_create(sinf(time) * lightPathRadius, 0.0f, cosf(time) * lightPathRadius);
+        lightPos = v3_create(0.0f, 0.0f, -2.0f);
 
         // draw cube
         glBindVertexArray(objectVAO);
         shader_use(objectShader);
         shader_setV3(objectShader, "viewPos", playerCamera.pos);
 
-        // shader_setV3(objectShader, "light.pos", lightPos);
-        shader_setV3(objectShader, "light.dir", v3_create(-0.2f, -1.0f, -0.3f));
+        shader_setV3(objectShader, "light.pos", lightPos);
+        // shader_setV3(objectShader, "light.dir", v3_create(-0.2f, -1.0f, -0.3f));
         shader_setV3(objectShader, "light.ambient", v3_mul(lightColor, 0.2f));
         shader_setV3(objectShader, "light.diffuse", v3_mul(lightColor, 0.5f)); // darken diffuse light a bit
         shader_setV3(objectShader, "light.specular", v3_mul(lightColor, 1.0f));
+        shader_setFloat(objectShader, "light.constant", 1.0f);
+        shader_setFloat(objectShader, "light.linear", 0.09f);
+        shader_setFloat(objectShader, "light.quadratic", 0.032f);
 
         shader_setInt(objectShader, "material.diffuse", 0);
         shader_setInt(objectShader, "material.specular", 1);
@@ -280,15 +284,15 @@ int main(void)
         }
 
         // draw light
-        // glBindVertexArray(lightVAO);
-        // shader_use(lightShader);
-        // shader_setV3(lightShader, "lightColor", lightColor);
-        // shader_setMat4x4(lightShader, "view", view);
-        // shader_setMat4x4(lightShader, "projection", projection);
-        // mat4x4_t lightModel = mat4x4_createIdentity();
-        // lightModel = mat4x4_mul(lightModel, mat4x4_createTranslate(lightPos));
-        // shader_setMat4x4(lightShader, "model", lightModel);
-        // glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(lightVAO);
+        shader_use(lightShader);
+        shader_setV3(lightShader, "lightColor", lightColor);
+        shader_setMat4x4(lightShader, "view", view);
+        shader_setMat4x4(lightShader, "projection", projection);
+        mat4x4_t lightModel = mat4x4_createIdentity();
+        lightModel = mat4x4_mul(lightModel, mat4x4_createTranslate(lightPos));
+        shader_setMat4x4(lightShader, "model", lightModel);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // update
         glfwSwapBuffers(window);
