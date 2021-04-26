@@ -173,6 +173,13 @@ int main(void)
         v3_create( 1.5f,  0.2f, -1.5f),
         v3_create(-1.3f,  1.0f, -1.5f),
     };
+
+    v3_t pointLightPositions[] = {
+        v3_create( 0.7f,  0.2f,   2.0f),
+        v3_create( 2.3f, -3.3f,  -4.0f),
+        v3_create(-4.0f,  2.0f, -12.0f),
+        v3_create( 0.0f,  0.0f,  -3.0f),
+    };
     // clang-format on
 
     //
@@ -224,6 +231,8 @@ int main(void)
         float currentFrame = glfwGetTime();
         dt = currentFrame - lastFrame;
         lastFrame = currentFrame;
+        v3_t sunlightColor = v3_create(1.0f, 1.0f, 0.0f);
+        v3_t pointLightColor = v3_create(1.0f, 0.0f, 0.0f);
 
         // inputs
         processInput(window);
@@ -238,37 +247,59 @@ int main(void)
 
         float time = glfwGetTime();
 
-        v3_t lightColor = v3_create(0.5f + sin(time * 2.0f) / 2.0f, 0.5f + sin(time * 0.7f) / 2.0f, 0.5f + sin(time * 1.3f) / 2.0);
-        lightColor = v3_create(1.0, 1.0, 1.0);
-
-        float lightPathRadius = 10.0f;
-        v3_t lightPos = v3_create(sinf(time) * lightPathRadius, 0.0f, cosf(time) * lightPathRadius);
-        lightPos = v3_create(0.0f, 0.0f, -2.0f);
-
-        // draw cube
+        //
+        // draw cubes
+        //
         glBindVertexArray(objectVAO);
         shader_use(objectShader);
+        shader_setMat4x4(objectShader, "view", view);
+        shader_setMat4x4(objectShader, "projection", projection);
         shader_setV3(objectShader, "viewPos", playerCamera.pos);
 
-        shader_setV3(objectShader, "light.pos", playerCamera.pos);
-        shader_setV3(objectShader, "light.dir", camera_getFront(playerCamera));
-        shader_setFloat(objectShader, "light.cutoff", cosf(0.30f));
-        shader_setFloat(objectShader, "light.outerCutoff", cosf(0.40f));
+        // sunlight
+        shader_setV3(objectShader, "sunlight.dir", v3_create(0.0f, -1.0f, 0.0f));
+        shader_setV3(objectShader, "sunlight.ambient", v3_mul(sunlightColor, 0.1f));
+        shader_setV3(objectShader, "sunlight.diffuse", v3_mul(sunlightColor, 1.0f));
+        shader_setV3(objectShader, "sunlight.specular", v3_mul(sunlightColor, 1.0f));
 
-        shader_setV3(objectShader, "light.ambient", v3_mul(lightColor, 0.1f));
-        shader_setV3(objectShader, "light.diffuse", v3_mul(lightColor, 0.8f)); // darken diffuse light a bit
-        shader_setV3(objectShader, "light.specular", v3_mul(lightColor, 1.0f));
-        shader_setFloat(objectShader, "light.constant", 1.0f);
-        shader_setFloat(objectShader, "light.linear", 0.09f);
-        shader_setFloat(objectShader, "light.quadratic", 0.032f);
+        // point lights
+        shader_setV3(objectShader, "pointLights[0].pos", pointLightPositions[0]);
+        shader_setV3(objectShader, "pointLights[0].ambient", v3_mul(pointLightColor, 0.05f));
+        shader_setV3(objectShader, "pointLights[0].diffuse", v3_mul(pointLightColor, 0.8f));
+        shader_setV3(objectShader, "pointLights[0].specular", v3_mul(pointLightColor, 1.0f));
+        shader_setFloat(objectShader, "pointLights[0].constant", 1.0f);
+        shader_setFloat(objectShader, "pointLights[0].linear", 0.09f);
+        shader_setFloat(objectShader, "pointLights[0].quadratic", 0.032f);
 
+        shader_setV3(objectShader, "pointLights[1].pos", pointLightPositions[1]);
+        shader_setV3(objectShader, "pointLights[1].ambient", v3_mul(pointLightColor, 0.05f));
+        shader_setV3(objectShader, "pointLights[1].diffuse", v3_mul(pointLightColor, 0.8f));
+        shader_setV3(objectShader, "pointLights[1].specular", v3_mul(pointLightColor, 1.0f));
+        shader_setFloat(objectShader, "pointLights[1].constant", 1.0f);
+        shader_setFloat(objectShader, "pointLights[1].linear", 0.09f);
+        shader_setFloat(objectShader, "pointLights[1].quadratic", 0.032f);
+
+        shader_setV3(objectShader, "pointLights[2].pos", pointLightPositions[2]);
+        shader_setV3(objectShader, "pointLights[2].ambient", v3_mul(pointLightColor, 0.05f));
+        shader_setV3(objectShader, "pointLights[2].diffuse", v3_mul(pointLightColor, 0.8f));
+        shader_setV3(objectShader, "pointLights[2].specular", v3_mul(pointLightColor, 1.0f));
+        shader_setFloat(objectShader, "pointLights[2].constant", 1.0f);
+        shader_setFloat(objectShader, "pointLights[2].linear", 0.09f);
+        shader_setFloat(objectShader, "pointLights[2].quadratic", 0.032f);
+
+        shader_setV3(objectShader, "pointLights[3].pos", pointLightPositions[3]);
+        shader_setV3(objectShader, "pointLights[3].ambient", v3_mul(pointLightColor, 0.05f));
+        shader_setV3(objectShader, "pointLights[3].diffuse", v3_mul(pointLightColor, 0.8f));
+        shader_setV3(objectShader, "pointLights[3].specular", v3_mul(pointLightColor, 1.0f));
+        shader_setFloat(objectShader, "pointLights[3].constant", 1.0f);
+        shader_setFloat(objectShader, "pointLights[3].linear", 0.09f);
+        shader_setFloat(objectShader, "pointLights[3].quadratic", 0.032f);
+
+        // materials
         shader_setInt(objectShader, "material.diffuse", 0);
         shader_setInt(objectShader, "material.specular", 1);
         shader_setInt(objectShader, "material.emission", 2);
         shader_setFloat(objectShader, "material.shininess", 32.0f);
-
-        shader_setMat4x4(objectShader, "view", view);
-        shader_setMat4x4(objectShader, "projection", projection);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
@@ -286,16 +317,23 @@ int main(void)
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-        // draw light
-        // glBindVertexArray(lightVAO);
-        // shader_use(lightShader);
-        // shader_setV3(lightShader, "lightColor", lightColor);
-        // shader_setMat4x4(lightShader, "view", view);
-        // shader_setMat4x4(lightShader, "projection", projection);
-        // mat4x4_t lightModel = mat4x4_createIdentity();
-        // lightModel = mat4x4_mul(lightModel, mat4x4_createTranslate(lightPos));
-        // shader_setMat4x4(lightShader, "model", lightModel);
-        // glDrawArrays(GL_TRIANGLES, 0, 36);
+        //
+        // draw point-lights
+        //
+        glBindVertexArray(lightVAO);
+        shader_use(lightShader);
+        for (int i = 0; i < 4; ++i)
+        {
+            mat4x4_t lightModel = mat4x4_createIdentity();
+            lightModel = mat4x4_mul(lightModel, mat4x4_createTranslate(pointLightPositions[i]));
+            lightModel = mat4x4_mul(lightModel, mat4x4_createScale(v3_create(0.2f, 0.2f, 0.2f)));
+            shader_setMat4x4(lightShader, "model", lightModel);
+            shader_setMat4x4(lightShader, "view", view);
+            shader_setMat4x4(lightShader, "projection", projection);
+            shader_setV3(lightShader, "lightColor", pointLightColor);
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         // update
         glfwSwapBuffers(window);
