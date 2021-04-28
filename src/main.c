@@ -12,6 +12,8 @@
 #include "shader.h"
 #include "texture.h"
 
+#include "mesh.h"
+
 static const int WINDOW_WIDTH = 800;
 static const int WINDOW_HEIGHT = 600;
 static const float FOV = M_PI_2;
@@ -116,51 +118,60 @@ int main(void)
     // Create data
     //
     // clang-format off
-    float verts[] = {
-        // positions          // normals           // texture coords
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+    vertex_t meshVerts[] = {
+        // positions             // normals              // texture coords
+        {{-0.5f, -0.5f, -0.5f},  { 0.0f,  0.0f, -1.0f},  {0.0f, 0.0f}}, // A  0 BACK
+        {{ 0.5f, -0.5f, -0.5f},  { 0.0f,  0.0f, -1.0f},  {1.0f, 0.0f}}, // B  1
+        {{ 0.5f,  0.5f, -0.5f},  { 0.0f,  0.0f, -1.0f},  {1.0f, 1.0f}}, // C  2
+        {{-0.5f,  0.5f, -0.5f},  { 0.0f,  0.0f, -1.0f},  {0.0f, 1.0f}}, // D  3
 
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+        {{-0.5f, -0.5f,  0.5f},  { 0.0f,  0.0f,  1.0f},  {0.0f, 0.0f}}, // E  4 FRONT
+        {{ 0.5f, -0.5f,  0.5f},  { 0.0f,  0.0f,  1.0f},  {1.0f, 0.0f}}, // F  5
+        {{ 0.5f,  0.5f,  0.5f},  { 0.0f,  0.0f,  1.0f},  {1.0f, 1.0f}}, // G  6
+        {{-0.5f,  0.5f,  0.5f},  { 0.0f,  0.0f,  1.0f},  {0.0f, 1.0f}}, // H  7
 
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+        {{-0.5f,  0.5f,  0.5f},  {-1.0f,  0.0f,  0.0f},  {1.0f, 0.0f}}, // H  8 LEFT
+        {{-0.5f,  0.5f, -0.5f},  {-1.0f,  0.0f,  0.0f},  {1.0f, 1.0f}}, // D  9
+        {{-0.5f, -0.5f, -0.5f},  {-1.0f,  0.0f,  0.0f},  {0.0f, 1.0f}}, // A 10
+        {{-0.5f, -0.5f,  0.5f},  {-1.0f,  0.0f,  0.0f},  {0.0f, 0.0f}}, // E 11
 
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+        {{ 0.5f,  0.5f,  0.5f},  { 1.0f,  0.0f,  0.0f},  {1.0f, 0.0f}}, // G 12 RIGHT
+        {{ 0.5f,  0.5f, -0.5f},  { 1.0f,  0.0f,  0.0f},  {1.0f, 1.0f}}, // C 13
+        {{ 0.5f, -0.5f, -0.5f},  { 1.0f,  0.0f,  0.0f},  {0.0f, 1.0f}}, // B 14
+        {{ 0.5f, -0.5f,  0.5f},  { 1.0f,  0.0f,  0.0f},  {0.0f, 0.0f}}, // F 15
 
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+        {{-0.5f, -0.5f, -0.5f},  { 0.0f, -1.0f,  0.0f},  {0.0f, 1.0f}}, // A 16 DOWN
+        {{ 0.5f, -0.5f, -0.5f},  { 0.0f, -1.0f,  0.0f},  {1.0f, 1.0f}}, // B 17
+        {{ 0.5f, -0.5f,  0.5f},  { 0.0f, -1.0f,  0.0f},  {1.0f, 0.0f}}, // F 18
+        {{-0.5f, -0.5f,  0.5f},  { 0.0f, -1.0f,  0.0f},  {0.0f, 0.0f}}, // E 19
 
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
+        {{-0.5f,  0.5f, -0.5f},  { 0.0f,  1.0f,  0.0f},  {0.0f, 1.0f}}, // D 20 UP
+        {{ 0.5f,  0.5f, -0.5f},  { 0.0f,  1.0f,  0.0f},  {1.0f, 1.0f}}, // C 21
+        {{ 0.5f,  0.5f,  0.5f},  { 0.0f,  1.0f,  0.0f},  {1.0f, 0.0f}}, // G 22
+        {{-0.5f,  0.5f,  0.5f},  { 0.0f,  1.0f,  0.0f},  {0.0f, 0.0f}}, // H 23
     };
     
+    unsigned int meshIndices[] = {
+        // BACK
+         2,  1,  3,
+         3,  1,  0,
+        // FRONT
+         7,  4,  6,
+         6,  4,  5,
+        // LEFT
+         9, 10,  8,
+         8, 10, 11,
+        // RIGHT
+        12, 15, 13,
+        13, 15, 14,
+        // DOWN
+        19, 16, 18,
+        18, 16, 17,
+        // UP
+        20, 23, 21,
+        21, 23, 22,
+    };
+
     v3_t cubePositions[] = {
         v3_create( 0.0f,  0.0f,  0.0f),
         v3_create( 2.0f,  5.0f, -15.0f),
@@ -181,44 +192,13 @@ int main(void)
         v3_create( 0.0f,  0.0f,  -3.0f),
     };
     // clang-format on
-
     //
-    // create buffers and vertex arrays
+    // Create mesh
     //
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
-
-    // object
-    unsigned int objectVAO;
-    glGenVertexArrays(1, &objectVAO);
-    glBindVertexArray(objectVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
-    // normal attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    // texture coord attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    // light
-    unsigned int lightVAO;
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
-
-    //
-    // Create textures
-    //
-    unsigned int diffuseMap = texture_load("./assets/container2.png");
-    unsigned int specularMap = texture_load("./assets/container2_specular.png");
-    unsigned int emissionMap = texture_load("./assets/matrix.jpg");
+    texture_t diffuseMap = texture_load("./assets/container2.png", DIFFUSE);
+    texture_t specularMap = texture_load("./assets/container2_specular.png", SPECULAR);
+    texture_t meshTextures[] = {diffuseMap, specularMap};
+    mesh_t cubeMesh = mesh_create(meshVerts, 24, meshIndices, 36, meshTextures, 2);
 
     // intialize globals
     playerCamera = camera_create(v3_create(0.0f, 0.0f, 3.0f), -M_PI_2, 0.0f);
@@ -231,8 +211,9 @@ int main(void)
         float currentFrame = glfwGetTime();
         dt = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        v3_t sunlightColor = v3_create(1.0f, 1.0f, 0.0f);
-        v3_t pointLightColor = v3_create(1.0f, 0.0f, 0.0f);
+        v3_t sunlightDir = v3_create(0.0f, -1.0f, 0.0f);
+        v3_t sunlightColor = v3_create(1.0f, 1.0f, 0.5f);
+        v3_t pointLightColor = v3_create(0.0f, 0.0f, 1.0f);
 
         // inputs
         processInput(window);
@@ -245,21 +226,24 @@ int main(void)
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        float time = glfwGetTime();
-
         //
-        // draw cubes
+        // draw cube
         //
-        glBindVertexArray(objectVAO);
         shader_use(objectShader);
+
+        mat4x4_t objectModel = mat4x4_createIdentity();
+        objectModel = mat4x4_mul(objectModel, mat4x4_createTranslate(v3_create(0.0, -2.0, 0.0)));
+        objectModel = mat4x4_mul(objectModel, mat4x4_createRotX(glfwGetTime()));
+
+        shader_setMat4x4(objectShader, "model", objectModel);
         shader_setMat4x4(objectShader, "view", view);
         shader_setMat4x4(objectShader, "projection", projection);
         shader_setV3(objectShader, "viewPos", playerCamera.pos);
 
         // sunlight
-        shader_setV3(objectShader, "sunlight.dir", v3_create(0.0f, -1.0f, 0.0f));
+        shader_setV3(objectShader, "sunlight.dir", sunlightDir);
         shader_setV3(objectShader, "sunlight.ambient", v3_mul(sunlightColor, 0.1f));
-        shader_setV3(objectShader, "sunlight.diffuse", v3_mul(sunlightColor, 1.0f));
+        shader_setV3(objectShader, "sunlight.diffuse", v3_mul(sunlightColor, 0.8f));
         shader_setV3(objectShader, "sunlight.specular", v3_mul(sunlightColor, 1.0f));
 
         // point lights
@@ -296,43 +280,32 @@ int main(void)
         shader_setFloat(objectShader, "pointLights[3].quadratic", 0.032f);
 
         // materials
-        shader_setInt(objectShader, "material.diffuse", 0);
-        shader_setInt(objectShader, "material.specular", 1);
-        shader_setInt(objectShader, "material.emission", 2);
         shader_setFloat(objectShader, "material.shininess", 32.0f);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, diffuseMap);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, specularMap);
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, emissionMap);
 
         for (int i = 0; i < 10; ++i)
         {
             mat4x4_t objectModel = mat4x4_createIdentity();
             objectModel = mat4x4_mul(objectModel, mat4x4_createTranslate(cubePositions[i]));
-            objectModel = mat4x4_mul(objectModel, mat4x4_createRotX(time));
+            objectModel = mat4x4_mul(objectModel, mat4x4_createRotX(currentFrame));
             shader_setMat4x4(objectShader, "model", objectModel);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            mesh_render(cubeMesh, objectShader);
         }
 
         //
         // draw point-lights
         //
-        glBindVertexArray(lightVAO);
         shader_use(lightShader);
+        shader_setMat4x4(lightShader, "view", view);
+        shader_setMat4x4(lightShader, "projection", projection);
+        shader_setV3(lightShader, "lightColor", pointLightColor);
+
         for (int i = 0; i < 4; ++i)
         {
             mat4x4_t lightModel = mat4x4_createIdentity();
             lightModel = mat4x4_mul(lightModel, mat4x4_createTranslate(pointLightPositions[i]));
             lightModel = mat4x4_mul(lightModel, mat4x4_createScale(v3_create(0.2f, 0.2f, 0.2f)));
             shader_setMat4x4(lightShader, "model", lightModel);
-            shader_setMat4x4(lightShader, "view", view);
-            shader_setMat4x4(lightShader, "projection", projection);
-            shader_setV3(lightShader, "lightColor", pointLightColor);
-
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            mesh_render(cubeMesh, lightShader);
         }
 
         // update

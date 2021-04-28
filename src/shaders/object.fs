@@ -1,9 +1,6 @@
 #version 330 core
 
 struct Material {
-  sampler2D diffuse;
-  sampler2D specular;
-  sampler2D emission;
   float shininess;
 };
 
@@ -23,6 +20,13 @@ struct PointLight {
   float linear;
   float quadratic;
 };
+
+uniform sampler2D diffuse1;
+uniform sampler2D diffuse2;
+uniform sampler2D diffuse3;
+
+uniform sampler2D specular1;
+uniform sampler2D specular2;
 
 uniform vec3 viewPos;
 uniform Material material;
@@ -66,9 +70,9 @@ vec3 calcDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir) {
   float specularStrength = pow(max(dot(-viewDir, reflectDir), 0.0), material.shininess);
 
   // result
-  vec3 ambient = light.ambient * vec3(texture(material.diffuse, fragTexCoords));
-  vec3 diffuse = light.diffuse * diffuseStrength * vec3(texture(material.diffuse, fragTexCoords));
-  vec3 specular = light.specular * specularStrength * vec3(texture(material.specular, fragTexCoords));
+  vec3 ambient = light.ambient * vec3(texture(diffuse1, fragTexCoords));
+  vec3 diffuse = light.diffuse * diffuseStrength * vec3(texture(diffuse1, fragTexCoords));
+  vec3 specular = light.specular * specularStrength * vec3(texture(specular1, fragTexCoords));
   return (ambient + diffuse + specular);
 }
 
@@ -88,12 +92,8 @@ vec3 calcPointLight(PointLight light, vec3 normal, vec3 viewDir)
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
     
     // result
-    vec3 ambient = light.ambient * vec3(texture(material.diffuse, fragTexCoords));
-    vec3 diffuse = light.diffuse * diffuseStrength * vec3(texture(material.diffuse, fragTexCoords));
-    vec3 specular = light.specular * specularStrength * vec3(texture(material.specular, fragTexCoords));
-    // TODO: try multiplying them all by attenuation
-    ambient  *= attenuation;
-    diffuse  *= attenuation;
-    specular *= attenuation;
-    return (ambient + diffuse + specular);
+    vec3 ambient = light.ambient * vec3(texture(diffuse1, fragTexCoords));
+    vec3 diffuse = light.diffuse * diffuseStrength * vec3(texture(diffuse1, fragTexCoords));
+    vec3 specular = light.specular * specularStrength * vec3(texture(specular1, fragTexCoords));
+    return (ambient + diffuse + specular) * attenuation;
 } 

@@ -1,11 +1,14 @@
 #include <glad/glad.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
+#include "texture.h"
 
-unsigned int texture_load(char *path)
+texture_t texture_load(char *path, enum texture_type type)
 {
-  unsigned int textureID;
-  glGenTextures(1, &textureID);
+  texture_t texture;
+  texture.type = type;
+  glGenTextures(1, &texture.id);
+
   int width, height, numComponents;
   unsigned char *data = stbi_load(path, &width, &height, &numComponents, 0);
 
@@ -29,7 +32,7 @@ unsigned int texture_load(char *path)
     format = GL_RGBA;
   }
 
-  glBindTexture(GL_TEXTURE_2D, textureID);
+  glBindTexture(GL_TEXTURE_2D, texture.id);
   glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
   glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -40,5 +43,5 @@ unsigned int texture_load(char *path)
 
   stbi_image_free(data);
 
-  return textureID;
+  return texture;
 }
