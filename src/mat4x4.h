@@ -2,7 +2,6 @@
 #define MAT4X4_H
 
 #include "v3.h"
-#include "v4.h"
 
 typedef struct mat4x4
 {
@@ -10,8 +9,6 @@ typedef struct mat4x4
 } mat4x4_t;
 
 mat4x4_t mat4x4_mul(mat4x4_t a, mat4x4_t b);
-
-v4_t mat4x4_mulv4(mat4x4_t mat, v4_t v);
 
 mat4x4_t mat4x4_createIdentity(void);
 

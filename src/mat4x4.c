@@ -17,18 +17,6 @@ mat4x4_t mat4x4_mul(mat4x4_t a, mat4x4_t b)
     return result;
 }
 
-v4_t mat4x4_mulv4(mat4x4_t mat, v4_t v)
-{
-    v4_t result;
-
-    result.x = mat.m[0][0] * v.x + mat.m[0][1] * v.y + mat.m[0][2] * v.z + mat.m[0][3] * v.w;
-    result.y = mat.m[1][0] * v.x + mat.m[1][1] * v.y + mat.m[1][2] * v.z + mat.m[1][3] * v.w;
-    result.z = mat.m[2][0] * v.x + mat.m[2][1] * v.y + mat.m[2][2] * v.z + mat.m[2][3] * v.w;
-    result.w = mat.m[3][0] * v.x + mat.m[3][1] * v.y + mat.m[3][2] * v.z + mat.m[3][3] * v.w;
-
-    return result;
-}
-
 mat4x4_t mat4x4_createIdentity()
 {
     mat4x4_t result;

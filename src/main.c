@@ -5,13 +5,13 @@
 #include <glad/glad.h>
 #define GL_SILENCE_DEPRECATION
 #include <GLFW/glfw3.h>
+#include <stb/stb_image.h>
 #include "utils.h"
 #include "mat4x4.h"
 #include "v3.h"
 #include "camera.h"
 #include "shader.h"
 #include "texture.h"
-
 #include "mesh.h"
 
 static const int WINDOW_WIDTH = 800;
@@ -103,6 +103,7 @@ int main(void)
 
     glEnable(GL_DEPTH_TEST);
 
+    stbi_set_flip_vertically_on_load(true);
     //
     // Create shader programs
     //
@@ -203,6 +204,7 @@ int main(void)
     // intialize globals
     playerCamera = camera_create(v3_create(0.0f, 0.0f, 3.0f), -M_PI_2, 0.0f);
     float lastFrame = 0.0f;
+
     //
     // Update loop
     //

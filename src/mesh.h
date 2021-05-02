@@ -27,6 +27,8 @@ typedef struct mesh
   unsigned int EBO;
 } mesh_t;
 
+mesh_t mesh_load(char *path, texture_t *textures, int texturesLen);
+
 mesh_t mesh_create(
     vertex_t *vertices, int verticesLen,
     unsigned int *indices, int indicesLen,

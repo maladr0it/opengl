@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
+#include <stdbool.h>
 #include "texture.h"
 
 texture_t texture_load(char *path, enum texture_type type)
