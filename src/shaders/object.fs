@@ -31,8 +31,6 @@ uniform sampler2D specular2;
 uniform vec3 viewPos;
 uniform Material material;
 uniform DirectionalLight sunlight;
-#define NUM_POINT_LIGHTS 4
-uniform PointLight pointLights[NUM_POINT_LIGHTS];
 
 in vec3 fragPos;
 in vec3 fragNormal;
@@ -50,11 +48,6 @@ void main() {
   vec3 result = vec3(0.0);
 
   result += calcDirectionalLight(sunlight, normal, viewDir);
-
-  for (int i = 0; i < NUM_POINT_LIGHTS; ++i)
-  {
-    result += calcPointLight(pointLights[i], normal, viewDir);
-  }
 
   fragColor = vec4(result, 1.0);
 }

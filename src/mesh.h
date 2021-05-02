@@ -17,21 +17,17 @@ typedef struct mesh
 {
   vertex_t *vertices;
   int verticesLen;
-  unsigned int *indices;
-  int indicesLen;
   texture_t *textures;
   int texturesLen;
 
   unsigned int VAO;
   unsigned int VBO;
-  unsigned int EBO;
 } mesh_t;
 
-mesh_t mesh_load(char *path, texture_t *textures, int texturesLen);
+int mesh_loadVerts(vertex_t **verts, char *path);
 
 mesh_t mesh_create(
     vertex_t *vertices, int verticesLen,
-    unsigned int *indices, int indicesLen,
     texture_t *textures, int texturesLen);
 
 void mesh_render(mesh_t mesh, shader_t shader);

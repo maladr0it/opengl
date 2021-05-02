@@ -16,7 +16,7 @@ static char *TEXTURE_NAMES[] = {
     "specular2",
 };
 
-mesh_t mesh_load(char *path, texture_t *textures, int texturesLen)
+int mesh_loadVerts(vertex_t **verts, char *path)
 {
   FILE *file = fopen(path, "r");
   if (file == NULL)
@@ -25,9 +25,6 @@ mesh_t mesh_load(char *path, texture_t *textures, int texturesLen)
     exit(EXIT_FAILURE);
   }
 
-  // TODO: allocate only as much room as we need
-  // count the number of faces and calculate how many verts will be created
-  vertex_t *verts = utils_malloc(sizeof(vertex_t) * 128);
   int vertsLen = 0;
 
   v3_t *vertPositions = utils_malloc(sizeof(v3_t) * 128);
@@ -89,82 +86,49 @@ mesh_t mesh_load(char *path, texture_t *textures, int texturesLen)
       int v3TexCoordIdx = strtol(indexStr, NULL, 10);
 
       vertex_t vert1;
-      vert1.pos = vertPositions[v1PositionIdx];
-      vert1.texCoords = vertTexCoords[v1TexCoordIdx];
+      vert1.pos = vertPositions[v1PositionIdx - 1];
+      vert1.texCoords = vertTexCoords[v1TexCoordIdx - 1];
 
       vertex_t vert2;
-      vert2.pos = vertPositions[v2PositionIdx];
-      vert2.texCoords = vertTexCoords[v2TexCoordIdx];
+      vert2.pos = vertPositions[v2PositionIdx - 1];
+      vert2.texCoords = vertTexCoords[v2TexCoordIdx - 1];
 
       vertex_t vert3;
-      vert3.pos = vertPositions[v3PositionIdx];
-      vert3.texCoords = vertTexCoords[v3TexCoordIdx];
+      vert3.pos = vertPositions[v3PositionIdx - 1];
+      vert3.texCoords = vertTexCoords[v3TexCoordIdx - 1];
 
       // assume CCW winding
-      v3_t faceNormal = v3_cross(v3_sub(vert2.pos, vert1.pos), v3_sub(vert3.pos, vert1.pos));
+      v3_t faceNormal = v3_normalize(v3_cross(v3_sub(vert2.pos, vert1.pos), v3_sub(vert3.pos, vert1.pos)));
       vert1.normal = faceNormal;
       vert2.normal = faceNormal;
       vert3.normal = faceNormal;
 
-      verts[vertsLen++] = vert1;
-      verts[vertsLen++] = vert2;
-      verts[vertsLen++] = vert3;
+      (*verts)[vertsLen++] = vert1;
+      (*verts)[vertsLen++] = vert2;
+      (*verts)[vertsLen++] = vert3;
     }
   }
 
-  mesh_t mesh;
-  mesh.vertices = verts;
-  mesh.verticesLen = vertsLen;
-  mesh.textures = textures;
-  mesh.texturesLen = texturesLen;
-
-  glGenVertexArrays(1, &mesh.VAO);
-  glGenBuffers(1, &mesh.VBO);
-
-  glBindVertexArray(mesh.VAO);
-
-  glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
-  glBufferData(GL_ARRAY_BUFFER, mesh.verticesLen * sizeof(*mesh.vertices), mesh.vertices, GL_STATIC_DRAW);
-
-  // vertex positions
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(*mesh.vertices), (void *)offsetof(vertex_t, pos));
-  glEnableVertexAttribArray(0);
-  // vertex normals
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(*mesh.vertices), (void *)offsetof(vertex_t, normal));
-  glEnableVertexAttribArray(1);
-  // vertex texture coords
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(*mesh.vertices), (void *)offsetof(vertex_t, texCoords));
-  glEnableVertexAttribArray(2);
-
-  glBindVertexArray(0);
-
-  return mesh;
+  return vertsLen;
 }
 
 mesh_t mesh_create(
     vertex_t *vertices, int verticesLen,
-    unsigned int *indices, int indicesLen,
     texture_t *textures, int texturesLen)
 {
   mesh_t mesh;
   mesh.vertices = vertices;
   mesh.verticesLen = verticesLen;
-  mesh.indices = indices;
-  mesh.indicesLen = indicesLen;
   mesh.textures = textures;
   mesh.texturesLen = texturesLen;
 
   glGenVertexArrays(1, &mesh.VAO);
   glGenBuffers(1, &mesh.VBO);
-  glGenBuffers(1, &mesh.EBO);
 
   glBindVertexArray(mesh.VAO);
 
   glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
   glBufferData(GL_ARRAY_BUFFER, mesh.verticesLen * sizeof(*mesh.vertices), mesh.vertices, GL_STATIC_DRAW);
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indicesLen * sizeof(*mesh.indices), mesh.indices, GL_STATIC_DRAW);
 
   // vertex positions
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(*mesh.vertices), (void *)offsetof(vertex_t, pos));
@@ -213,6 +177,6 @@ void mesh_render(mesh_t mesh, shader_t shader)
 
   // render
   glBindVertexArray(mesh.VAO);
-  glDrawElements(GL_TRIANGLES, mesh.indicesLen, GL_UNSIGNED_INT, 0);
+  glDrawArrays(GL_TRIANGLES, 0, mesh.verticesLen);
   glBindVertexArray(0);
 }
