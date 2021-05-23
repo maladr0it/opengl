@@ -1,18 +1,3 @@
 {
-  "files.associations": {
-    "glfw3.h": "c",
-    "stdio.h": "c",
-    "__locale": "cpp",
-    "stdlib.h": "c",
-    "shader.h": "c",
-    "array": "c",
-    "iterator": "c",
-    "string": "c",
-    "string_view": "c",
-    "vector": "c",
-    "mat4x4.h": "c",
-    "v4.h": "c",
-    "algorithm": "c",
-    "stb_image.h": "c"
-  }
+    "editor.tabSize": 4
 }

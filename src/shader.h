@@ -7,7 +7,7 @@
 
 typedef struct shader
 {
-  unsigned int id;
+    unsigned int id;
 } shader_t;
 
 shader_t shader_create(char *vertexPath, char *fragmentPath);

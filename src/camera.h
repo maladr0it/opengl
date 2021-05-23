@@ -6,17 +6,17 @@
 
 enum camera_moveDirection
 {
-  CAMERA_FORWARD = 0x01,
-  CAMERA_BACKWARD = 0x02,
-  CAMERA_LEFT = 0x04,
-  CAMERA_RIGHT = 0x08,
+    CAMERA_FORWARD = 0x01,
+    CAMERA_BACKWARD = 0x02,
+    CAMERA_LEFT = 0x04,
+    CAMERA_RIGHT = 0x08,
 };
 
 typedef struct camera
 {
-  v3_t pos;
-  float yaw;
-  float pitch;
+    v3_t pos;
+    float yaw;
+    float pitch;
 } camera_t;
 
 camera_t camera_create(v3_t pos, float yaw, float pitch);

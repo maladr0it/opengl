@@ -18,165 +18,165 @@ static char *TEXTURE_NAMES[] = {
 
 int mesh_loadVerts(vertex_t **verts, char *path)
 {
-  FILE *file = fopen(path, "r");
-  if (file == NULL)
-  {
-    printf("failed to open file: %s", path);
-    exit(EXIT_FAILURE);
-  }
-
-  int vertsLen = 0;
-
-  v3_t *vertPositions = utils_malloc(sizeof(v3_t) * 128);
-  int vertPositionsLen = 0;
-  v2_t *vertTexCoords = utils_malloc(sizeof(v2_t) * 128);
-  int vertTexCoordsLen = 0;
-
-  char line[256];
-  char token[64];
-
-  while (fgets(line, 128, file) != NULL)
-  {
-    char *linePtr = line;
-    utils_getToken(linePtr, ' ', token, &linePtr);
-
-    if (strcmp(token, "v") == 0)
+    FILE *file = fopen(path, "r");
+    if (file == NULL)
     {
-      float posX = strtof(linePtr, &linePtr);
-      float posY = strtof(linePtr, &linePtr);
-      float posZ = strtof(linePtr, &linePtr);
-      vertPositions[vertPositionsLen] = v3_create(posX, posY, posZ);
-      ++vertPositionsLen;
+        printf("failed to open file: %s", path);
+        exit(EXIT_FAILURE);
     }
-    else if (strcmp(token, "vt") == 0)
+
+    int vertsLen = 0;
+
+    v3_t *vertPositions = utils_malloc(sizeof(v3_t) * 128);
+    int vertPositionsLen = 0;
+    v2_t *vertTexCoords = utils_malloc(sizeof(v2_t) * 128);
+    int vertTexCoordsLen = 0;
+
+    char line[256];
+    char token[64];
+
+    while (fgets(line, 128, file) != NULL)
     {
-      float texCoordX = strtof(linePtr, &linePtr);
-      float texCoordY = strtof(linePtr, &linePtr);
-      vertTexCoords[vertTexCoordsLen] = v2_create(texCoordX, texCoordY);
-      vertTexCoordsLen++;
+        char *linePtr = line;
+        utils_getToken(linePtr, ' ', token, &linePtr);
+
+        if (strcmp(token, "v") == 0)
+        {
+            float posX = strtof(linePtr, &linePtr);
+            float posY = strtof(linePtr, &linePtr);
+            float posZ = strtof(linePtr, &linePtr);
+            vertPositions[vertPositionsLen] = v3_create(posX, posY, posZ);
+            ++vertPositionsLen;
+        }
+        else if (strcmp(token, "vt") == 0)
+        {
+            float texCoordX = strtof(linePtr, &linePtr);
+            float texCoordY = strtof(linePtr, &linePtr);
+            vertTexCoords[vertTexCoordsLen] = v2_create(texCoordX, texCoordY);
+            vertTexCoordsLen++;
+        }
+        else if (strcmp(token, "f") == 0)
+        {
+            // TODO: rethink name for a 'sub-token' and the pointer within it
+            char *tokenPtr;
+            char indexStr[16];
+
+            // vertex 1
+            utils_getToken(linePtr, ' ', token, &linePtr);
+            tokenPtr = token;
+            utils_getToken(tokenPtr, '/', indexStr, &tokenPtr);
+            int v1PositionIdx = strtol(indexStr, NULL, 10);
+            utils_getToken(tokenPtr, '/', indexStr, &tokenPtr);
+            int v1TexCoordIdx = strtol(indexStr, NULL, 10);
+
+            // vertex 2
+            utils_getToken(linePtr, ' ', token, &linePtr);
+            tokenPtr = token;
+            utils_getToken(tokenPtr, '/', indexStr, &tokenPtr);
+            int v2PositionIdx = strtol(indexStr, NULL, 10);
+            utils_getToken(tokenPtr, '/', indexStr, &tokenPtr);
+            int v2TexCoordIdx = strtol(indexStr, NULL, 10);
+
+            // vertex 3
+            utils_getToken(linePtr, ' ', token, &linePtr);
+            tokenPtr = token;
+            utils_getToken(tokenPtr, '/', indexStr, &tokenPtr);
+            int v3PositionIdx = strtol(indexStr, NULL, 10);
+            utils_getToken(tokenPtr, '/', indexStr, &tokenPtr);
+            int v3TexCoordIdx = strtol(indexStr, NULL, 10);
+
+            vertex_t vert1;
+            vert1.pos = vertPositions[v1PositionIdx - 1];
+            vert1.texCoords = vertTexCoords[v1TexCoordIdx - 1];
+
+            vertex_t vert2;
+            vert2.pos = vertPositions[v2PositionIdx - 1];
+            vert2.texCoords = vertTexCoords[v2TexCoordIdx - 1];
+
+            vertex_t vert3;
+            vert3.pos = vertPositions[v3PositionIdx - 1];
+            vert3.texCoords = vertTexCoords[v3TexCoordIdx - 1];
+
+            // assume CCW winding
+            v3_t faceNormal = v3_normalize(v3_cross(v3_sub(vert2.pos, vert1.pos), v3_sub(vert3.pos, vert1.pos)));
+            vert1.normal = faceNormal;
+            vert2.normal = faceNormal;
+            vert3.normal = faceNormal;
+
+            (*verts)[vertsLen++] = vert1;
+            (*verts)[vertsLen++] = vert2;
+            (*verts)[vertsLen++] = vert3;
+        }
     }
-    else if (strcmp(token, "f") == 0)
-    {
-      // TODO: rethink name for a 'sub-token' and the pointer within it
-      char *tokenPtr;
-      char indexStr[16];
 
-      // vertex 1
-      utils_getToken(linePtr, ' ', token, &linePtr);
-      tokenPtr = token;
-      utils_getToken(tokenPtr, '/', indexStr, &tokenPtr);
-      int v1PositionIdx = strtol(indexStr, NULL, 10);
-      utils_getToken(tokenPtr, '/', indexStr, &tokenPtr);
-      int v1TexCoordIdx = strtol(indexStr, NULL, 10);
-
-      // vertex 2
-      utils_getToken(linePtr, ' ', token, &linePtr);
-      tokenPtr = token;
-      utils_getToken(tokenPtr, '/', indexStr, &tokenPtr);
-      int v2PositionIdx = strtol(indexStr, NULL, 10);
-      utils_getToken(tokenPtr, '/', indexStr, &tokenPtr);
-      int v2TexCoordIdx = strtol(indexStr, NULL, 10);
-
-      // vertex 3
-      utils_getToken(linePtr, ' ', token, &linePtr);
-      tokenPtr = token;
-      utils_getToken(tokenPtr, '/', indexStr, &tokenPtr);
-      int v3PositionIdx = strtol(indexStr, NULL, 10);
-      utils_getToken(tokenPtr, '/', indexStr, &tokenPtr);
-      int v3TexCoordIdx = strtol(indexStr, NULL, 10);
-
-      vertex_t vert1;
-      vert1.pos = vertPositions[v1PositionIdx - 1];
-      vert1.texCoords = vertTexCoords[v1TexCoordIdx - 1];
-
-      vertex_t vert2;
-      vert2.pos = vertPositions[v2PositionIdx - 1];
-      vert2.texCoords = vertTexCoords[v2TexCoordIdx - 1];
-
-      vertex_t vert3;
-      vert3.pos = vertPositions[v3PositionIdx - 1];
-      vert3.texCoords = vertTexCoords[v3TexCoordIdx - 1];
-
-      // assume CCW winding
-      v3_t faceNormal = v3_normalize(v3_cross(v3_sub(vert2.pos, vert1.pos), v3_sub(vert3.pos, vert1.pos)));
-      vert1.normal = faceNormal;
-      vert2.normal = faceNormal;
-      vert3.normal = faceNormal;
-
-      (*verts)[vertsLen++] = vert1;
-      (*verts)[vertsLen++] = vert2;
-      (*verts)[vertsLen++] = vert3;
-    }
-  }
-
-  return vertsLen;
+    return vertsLen;
 }
 
 mesh_t mesh_create(
     vertex_t *vertices, int verticesLen,
     texture_t *textures, int texturesLen)
 {
-  mesh_t mesh;
-  mesh.vertices = vertices;
-  mesh.verticesLen = verticesLen;
-  mesh.textures = textures;
-  mesh.texturesLen = texturesLen;
+    mesh_t mesh;
+    mesh.vertices = vertices;
+    mesh.verticesLen = verticesLen;
+    mesh.textures = textures;
+    mesh.texturesLen = texturesLen;
 
-  glGenVertexArrays(1, &mesh.VAO);
-  glGenBuffers(1, &mesh.VBO);
+    glGenVertexArrays(1, &mesh.VAO);
+    glGenBuffers(1, &mesh.VBO);
 
-  glBindVertexArray(mesh.VAO);
+    glBindVertexArray(mesh.VAO);
 
-  glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
-  glBufferData(GL_ARRAY_BUFFER, mesh.verticesLen * sizeof(*mesh.vertices), mesh.vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
+    glBufferData(GL_ARRAY_BUFFER, mesh.verticesLen * sizeof(*mesh.vertices), mesh.vertices, GL_STATIC_DRAW);
 
-  // vertex positions
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(*mesh.vertices), (void *)offsetof(vertex_t, pos));
-  glEnableVertexAttribArray(0);
-  // vertex normals
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(*mesh.vertices), (void *)offsetof(vertex_t, normal));
-  glEnableVertexAttribArray(1);
-  // vertex texture coords
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(*mesh.vertices), (void *)offsetof(vertex_t, texCoords));
-  glEnableVertexAttribArray(2);
+    // vertex positions
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(*mesh.vertices), (void *)offsetof(vertex_t, pos));
+    glEnableVertexAttribArray(0);
+    // vertex normals
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(*mesh.vertices), (void *)offsetof(vertex_t, normal));
+    glEnableVertexAttribArray(1);
+    // vertex texture coords
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(*mesh.vertices), (void *)offsetof(vertex_t, texCoords));
+    glEnableVertexAttribArray(2);
 
-  glBindVertexArray(0);
+    glBindVertexArray(0);
 
-  return mesh;
+    return mesh;
 }
 
 void mesh_render(mesh_t mesh, shader_t shader)
 {
-  // set textures
-  unsigned int numDiffuseMaps = 0;
-  unsigned int numSpecularMaps = 0;
+    // set textures
+    unsigned int numDiffuseMaps = 0;
+    unsigned int numSpecularMaps = 0;
 
-  for (int i = 0; i < mesh.texturesLen; ++i)
-  {
-    glActiveTexture(GL_TEXTURE0 + i);
-
-    enum texture_type type = mesh.textures[i].type;
-
-    if (type == DIFFUSE)
+    for (int i = 0; i < mesh.texturesLen; ++i)
     {
-      char *textureName = TEXTURE_NAMES[DIFFUSE_TEXTURES_OFFSET + numDiffuseMaps];
-      shader_setInt(shader, textureName, i);
-      ++numDiffuseMaps;
+        glActiveTexture(GL_TEXTURE0 + i);
+
+        enum texture_type type = mesh.textures[i].type;
+
+        if (type == DIFFUSE)
+        {
+            char *textureName = TEXTURE_NAMES[DIFFUSE_TEXTURES_OFFSET + numDiffuseMaps];
+            shader_setInt(shader, textureName, i);
+            ++numDiffuseMaps;
+        }
+        else if (type == SPECULAR)
+        {
+            char *textureName = TEXTURE_NAMES[SPECULAR_TEXTURES_OFFSET + numSpecularMaps];
+            shader_setInt(shader, textureName, i);
+            ++numSpecularMaps;
+        }
+
+        glBindTexture(GL_TEXTURE_2D, mesh.textures[i].id);
     }
-    else if (type == SPECULAR)
-    {
-      char *textureName = TEXTURE_NAMES[SPECULAR_TEXTURES_OFFSET + numSpecularMaps];
-      shader_setInt(shader, textureName, i);
-      ++numSpecularMaps;
-    }
 
-    glBindTexture(GL_TEXTURE_2D, mesh.textures[i].id);
-  }
+    glActiveTexture(GL_TEXTURE0);
 
-  glActiveTexture(GL_TEXTURE0);
-
-  // render
-  glBindVertexArray(mesh.VAO);
-  glDrawArrays(GL_TRIANGLES, 0, mesh.verticesLen);
-  glBindVertexArray(0);
+    // render
+    glBindVertexArray(mesh.VAO);
+    glDrawArrays(GL_TRIANGLES, 0, mesh.verticesLen);
+    glBindVertexArray(0);
 }

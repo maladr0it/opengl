@@ -8,20 +8,20 @@
 
 typedef struct vertex
 {
-  v3_t pos;
-  v3_t normal;
-  v2_t texCoords;
+    v3_t pos;
+    v3_t normal;
+    v2_t texCoords;
 } vertex_t;
 
 typedef struct mesh
 {
-  vertex_t *vertices;
-  int verticesLen;
-  texture_t *textures;
-  int texturesLen;
+    vertex_t *vertices;
+    int verticesLen;
+    texture_t *textures;
+    int texturesLen;
 
-  unsigned int VAO;
-  unsigned int VBO;
+    unsigned int VAO;
+    unsigned int VBO;
 } mesh_t;
 
 int mesh_loadVerts(vertex_t **verts, char *path);

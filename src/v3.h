@@ -30,8 +30,4 @@ v3_t v3_normalize(v3_t a);
 
 v3_t v3_interpolate(v3_t from, v3_t to, float t);
 
-float v3_getPlaneIntersect(v3_t planePoint, v3_t planeNormal, v3_t linePoint, v3_t lineVec);
-
-bool v3_isInsideHalfspace(v3_t planePoint, v3_t planeNormal, v3_t point);
-
 #endif
