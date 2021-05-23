@@ -1,2 +1,3 @@
-./build-dev.sh
+./build.sh
+
 ./build/main

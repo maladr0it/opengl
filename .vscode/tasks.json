@@ -4,23 +4,12 @@
         {
             "type": "shell",
             "label": "C/C++: make file",
-            "command": "./build-dev.sh",
+            "command": "./build.sh",
             "args": [],
             "options": {
                 "cwd": "${workspaceFolder}"
             },
             "group": "build"
         },
-        {
-            "type": "shell",
-            "label": "C/C++: build & run",
-            "command": "./build-dev.sh",
-            "args": [],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "group": "build",
-            "problemMatcher": []
-        }
     ]
 }

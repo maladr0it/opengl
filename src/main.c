@@ -102,6 +102,7 @@ int main(void)
     };
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
 
     stbi_set_flip_vertically_on_load(true);
     //

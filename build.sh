@@ -1,4 +1,6 @@
-rm -rf build && mkdir build
+rm -rf build
+
+mkdir build
 
 clang -g -Wall \
 -I /usr/local/include -I ./libs -framework OpenGL \
